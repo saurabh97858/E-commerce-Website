@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
     pincode: { type: String, required: true },
     gender: { type: String, enum: ['Male', 'Female', 'Other'], required: true },
     mobile: { type: String, required: true },
-    role: { type: String, enum: ['user', 'admin'], default: 'user' }
+    role: { type: String, enum: ['user', 'admin', 'super_admin'], default: 'user' }
 }, { timestamps: true });
 
 userSchema.pre('save', async function () {

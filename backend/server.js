@@ -26,7 +26,11 @@ if (!fs.existsSync(uploadsDir)) {
 // Serve static uploads
 app.use('/uploads', express.static(uploadsDir));
 
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocs = require('./config/swagger');
+
 // Routes
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/categories', require('./routes/categoryRoutes'));
@@ -41,7 +45,12 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'OK', message: 'Shoes Shopping API is running' });
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+// Vercel serverless support: export the app
+module.exports = app;
+
+if (require.main === module) {
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}

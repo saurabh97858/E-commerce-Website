@@ -5,6 +5,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
+import SuperAdminRoute from './components/SuperAdminRoute';
 
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -27,6 +28,7 @@ import ManageOrders from './pages/admin/ManageOrders';
 import ManagePayments from './pages/admin/ManagePayments';
 import ManageFeedback from './pages/admin/ManageFeedback';
 import Reports from './pages/admin/Reports';
+import ManageAdmins from './pages/admin/ManageAdmins';
 
 import './App.css';
 
@@ -54,6 +56,7 @@ function App() {
                 <Route path="/my-account" element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
                 <Route path="/change-password" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
                 <Route path="/admin/dashboard" element={<AdminRoute><Dashboard /></AdminRoute>} />
+                <Route path="/super-admin/manage-admins" element={<SuperAdminRoute><ManageAdmins /></SuperAdminRoute>} />
                 <Route path="/admin/categories" element={<AdminRoute><ManageCategories /></AdminRoute>} />
                 <Route path="/admin/products" element={<AdminRoute><ManageProducts /></AdminRoute>} />
                 <Route path="/admin/orders" element={<AdminRoute><ManageOrders /></AdminRoute>} />

@@ -55,3 +55,34 @@ exports.getReports = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// Create a new admin
+exports.createAdmin = async (req, res) => {
+    try {
+        const { name, surname, email, password, address, city, pincode, gender, mobile } = req.body;
+
+        const userExists = await User.findOne({ email });
+        if (userExists) {
+            return res.status(400).json({ message: 'User already exists' });
+        }
+
+        const admin = new User({
+            name, surname, email, password, address, city, pincode, gender, mobile, role: 'admin'
+        });
+
+        await admin.save();
+        res.status(201).json({ message: 'Admin created successfully', admin: { _id: admin._id, name: admin.name, email: admin.email } });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Get all admins
+exports.getAdmins = async (req, res) => {
+    try {
+        const admins = await User.find({ role: 'admin' }).select('-password');
+        res.json(admins);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

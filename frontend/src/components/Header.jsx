@@ -55,8 +55,11 @@ const Header = () => {
                         <Link to="/login" className="nav-link">LOGIN</Link>
                         <Link to="/contact" className="nav-link">CONTACT US</Link>
                     </>
-                ) : user.role === 'admin' ? (
+                ) : (user.role === 'admin' || user.role === 'super_admin') ? (
                     <>
+                        {user.role === 'super_admin' && (
+                            <Link to="/super-admin/manage-admins" className="nav-link">MANAGE ADMINS</Link>
+                        )}
                         <Link to="/admin/dashboard" className="nav-link">DASHBOARD</Link>
                         <Link to="/admin/categories" className="nav-link">CATEGORIES</Link>
                         <Link to="/admin/products" className="nav-link">PRODUCTS</Link>
