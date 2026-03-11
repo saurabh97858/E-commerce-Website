@@ -17,11 +17,13 @@ const ProductCard = ({ product }) => {
     return (
         <div className="product-card">
             <Link to={`/product/${product._id}`} className="product-image-link">
-                <img
-                    src={getImageSrc(product.images?.[0])}
-                    alt={product.name}
-                    className="product-image"
-                />
+                <div className="product-card-image">
+                    <img
+                        src={getImageSrc(product.images?.[0])}
+                        alt={product.name}
+                        className="product-image"
+                    />
+                </div>
             </Link>
             <div className="product-card-info">
                 <p className="product-card-name">Name : {product.name}</p>
