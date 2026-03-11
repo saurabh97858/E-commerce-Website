@@ -4,11 +4,14 @@ import API from '../api/axios';
 const ProductCard = ({ product }) => {
     // Helper to get image src
     const getImageSrc = (img) => {
-        if (!img) return 'https://via.placeholder.com/300';
-        if (img.startsWith('http') || img.startsWith('data:')) return img;
-        // Assuming API.defaults.baseURL is something like 'http://localhost:5000/api'
-        // and we want to prepend 'http://localhost:5000' for relative paths.
-        return `${API.defaults.baseURL.replace('/api', '')}${img}`;
+        if (!img || typeof img !== 'string' || img.trim() === '') {
+            return '/placeholder.png'; // Assuming there's a local placeholder or just fallback naturally
+        }
+        if (img.startsWith('http') || img.startsWith('data:')) {
+            return img;
+        }
+        const baseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/api$/, '');
+        return `${baseUrl}${img.startsWith('/') ? '' : '/'}${img}`;
     };
 
     return (

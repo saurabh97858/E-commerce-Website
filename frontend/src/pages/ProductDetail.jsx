@@ -48,9 +48,14 @@ const ProductDetail = () => {
     };
 
     const getImageSrc = (img) => {
-        if (!img) return 'https://via.placeholder.com/400x400?text=No+Image';
-        if (img.startsWith('http') || img.startsWith('data:')) return img;
-        return `${API.defaults.baseURL.replace('/api', '')}${img}`;
+        if (!img || typeof img !== 'string' || img.trim() === '') {
+            return '/placeholder.png';
+        }
+        if (img.startsWith('http') || img.startsWith('data:')) {
+            return img;
+        }
+        const baseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/api$/, '');
+        return `${baseUrl}${img.startsWith('/') ? '' : '/'}${img}`;
     };
 
     if (loading) return <div className="loading">Loading...</div>;

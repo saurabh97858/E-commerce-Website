@@ -157,7 +157,15 @@ const ManageProducts = () => {
                                 <tr key={p._id} className={editing === p._id ? 'row-editing' : ''}>
                                     <td>
                                         <img
-                                            src={(p.images?.[0] || 'https://via.placeholder.com/50').startsWith('http') || (p.images?.[0] || '').startsWith('data:') ? p.images[0] : `http://localhost:5000${p.images?.[0]}`}
+                                            src={
+                                                (() => {
+                                                    const img = p.images?.[0];
+                                                    if (!img || typeof img !== 'string' || img.trim() === '') return '/placeholder.png';
+                                                    if (img.startsWith('http') || img.startsWith('data:')) return img;
+                                                    const baseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/api$/, '');
+                                                    return `${baseUrl}${img.startsWith('/') ? '' : '/'}${img}`;
+                                                })()
+                                            }
                                             alt={p.name}
                                             className="cart-item-img"
                                         />

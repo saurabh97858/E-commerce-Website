@@ -37,7 +37,15 @@ const Cart = () => {
                         <tr key={item._id}>
                             <td>
                                 <img
-                                    src={(item.product?.images?.[0] || 'https://via.placeholder.com/60').startsWith('http') || (item.product?.images?.[0] || '').startsWith('data:') ? item.product.images[0] : `http://localhost:5000${item.product?.images?.[0]}`}
+                                    src={
+                                        (() => {
+                                            const img = item.product?.images?.[0];
+                                            if (!img || typeof img !== 'string' || img.trim() === '') return '/placeholder.png';
+                                            if (img.startsWith('http') || img.startsWith('data:')) return img;
+                                            const baseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/api$/, '');
+                                            return `${baseUrl}${img.startsWith('/') ? '' : '/'}${img}`;
+                                        })()
+                                    }
                                     alt={item.product?.name}
                                     className="cart-item-img"
                                 />
