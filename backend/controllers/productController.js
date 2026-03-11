@@ -35,14 +35,36 @@ exports.getProduct = async (req, res) => {
 exports.createProduct = async (req, res) => {
     try {
         const { name, price, description, category, stock, sizes } = req.body;
-        const images = req.files ? req.files.map(f => `/uploads/${f.filename}`) : [];
-        const product = await Product.create({
-            name, price, description, images, category, stock,
-            sizes: sizes ? (typeof sizes === 'string' ? JSON.parse(sizes) : sizes) : []
+        // Convert uploaded files to base64 strings
+        const images = req.files ? req.files.map(file => {
+            const fs = require('fs');
+            const data = fs.readFileSync(file.path);
+            const base64 = data.toString('base64');
+            return `data:${file.mimetype};base64,${base64}`;
+        }) : [];
+
+        // Parse sizes string back to array if sent as JSON from frontend FormData
+        let parsedSizes = [];
+        if (sizes) {
+            try { parsedSizes = JSON.parse(sizes); }
+            catch (e) { parsedSizes = sizes.split(',').map(s => s.trim()); }
+        }
+
+        const product = new Product({
+            name,
+            price,
+            description,
+            category,
+            stock,
+            sizes: parsedSizes,
+            images
         });
+
+        await product.save();
         res.status(201).json(product);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
     }
 };
 
@@ -63,7 +85,12 @@ exports.updateProduct = async (req, res) => {
             product.sizes = typeof sizes === 'string' ? JSON.parse(sizes) : sizes;
         }
         if (req.files && req.files.length > 0) {
-            product.images = req.files.map(f => `/uploads/${f.filename}`);
+            product.images = req.files.map(file => {
+                const fs = require('fs');
+                const data = fs.readFileSync(file.path);
+                const base64 = data.toString('base64');
+                return `data:${file.mimetype};base64,${base64}`;
+            });
         }
         const updated = await product.save();
         res.json(updated);

@@ -14,7 +14,14 @@ exports.getCategories = async (req, res) => {
 exports.createCategory = async (req, res) => {
     try {
         const { name, description } = req.body;
-        const image = req.file ? `/uploads/${req.file.filename}` : '';
+        let image = '';
+        if (req.file) {
+            const fs = require('fs');
+            const data = fs.readFileSync(req.file.path);
+            const base64 = data.toString('base64');
+            image = `data:${req.file.mimetype};base64,${base64}`;
+        }
+
         const exists = await Category.findOne({ name });
         if (exists) {
             return res.status(400).json({ message: 'Category already exists' });
@@ -36,9 +43,14 @@ exports.updateCategory = async (req, res) => {
         }
         category.name = name || category.name;
         category.description = description || category.description;
+
         if (req.file) {
-            category.image = `/uploads/${req.file.filename}`;
+            const fs = require('fs');
+            const data = fs.readFileSync(req.file.path);
+            const base64 = data.toString('base64');
+            category.image = `data:${req.file.mimetype};base64,${base64}`;
         }
+
         const updated = await category.save();
         res.json(updated);
     } catch (error) {

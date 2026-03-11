@@ -37,7 +37,7 @@ const Cart = () => {
                         <tr key={item._id}>
                             <td>
                                 <img
-                                    src={item.product?.images?.[0] ? `http://localhost:5000${item.product.images[0]}` : 'https://via.placeholder.com/60'}
+                                    src={(item.product?.images?.[0] || 'https://via.placeholder.com/60').startsWith('http') || (item.product?.images?.[0] || '').startsWith('data:') ? item.product.images[0] : `http://localhost:5000${item.product?.images?.[0]}`}
                                     alt={item.product?.name}
                                     className="cart-item-img"
                                 />

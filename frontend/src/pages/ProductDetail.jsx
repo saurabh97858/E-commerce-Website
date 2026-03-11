@@ -47,6 +47,12 @@ const ProductDetail = () => {
         }
     };
 
+    const getImageSrc = (img) => {
+        if (!img) return 'https://via.placeholder.com/400x400?text=No+Image';
+        if (img.startsWith('http') || img.startsWith('data:')) return img;
+        return `${API.defaults.baseURL.replace('/api', '')}${img}`;
+    };
+
     if (loading) return <div className="loading">Loading...</div>;
     if (!product) return <div className="loading">Product not found</div>;
 
@@ -56,7 +62,7 @@ const ProductDetail = () => {
                 <div className="product-images">
                     <div className="main-image">
                         <img
-                            src={product.images && product.images.length > 0 ? `http://localhost:5000${product.images[selectedImage]}` : 'https://via.placeholder.com/400x400?text=No+Image'}
+                            src={getImageSrc(product.images?.[selectedImage])}
                             alt={product.name}
                         />
                     </div>
@@ -65,7 +71,7 @@ const ProductDetail = () => {
                             {product.images.map((img, idx) => (
                                 <img
                                     key={idx}
-                                    src={`http://localhost:5000${img}`}
+                                    src={getImageSrc(img)}
                                     alt={`${product.name} ${idx + 1}`}
                                     className={`thumbnail ${selectedImage === idx ? 'active' : ''}`}
                                     onClick={() => setSelectedImage(idx)}

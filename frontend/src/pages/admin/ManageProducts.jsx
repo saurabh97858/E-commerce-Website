@@ -157,7 +157,7 @@ const ManageProducts = () => {
                                 <tr key={p._id} className={editing === p._id ? 'row-editing' : ''}>
                                     <td>
                                         <img
-                                            src={p.images?.[0] ? `http://localhost:5000${p.images[0]}` : 'https://via.placeholder.com/50'}
+                                            src={(p.images?.[0] || 'https://via.placeholder.com/50').startsWith('http') || (p.images?.[0] || '').startsWith('data:') ? p.images[0] : `http://localhost:5000${p.images?.[0]}`}
                                             alt={p.name}
                                             className="cart-item-img"
                                         />
