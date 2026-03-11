@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import API from '../api'; // Assuming API is imported from a file like this
+import API from '../api/axios';
 
 const ProductCard = ({ product }) => {
     // Helper to get image src
