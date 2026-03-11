@@ -14,13 +14,14 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// Create uploads directory if not exists
-const uploadsDir = path.join(__dirname, 'uploads');
+const isVercel = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+const uploadsDir = isVercel ? '/tmp/uploads' : path.join(__dirname, 'uploads');
+
 if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir);
+    fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
 // Serve static uploads

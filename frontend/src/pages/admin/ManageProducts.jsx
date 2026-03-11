@@ -113,7 +113,7 @@ const ManageProducts = () => {
                         <label>Product Images {editing && '(leave empty to keep current)'}</label>
                         <input type="file" accept="image/*" multiple onChange={(e) => setImages(e.target.files)} />
                     </div>
-                    <div className="form-actions" style={{ display: 'flex', gap: '10px' }}>
+                    <div className="form-actions" style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
                         <button type="submit" className="btn-green">
                             {editing ? 'Update Product Details' : 'Add Product'}
                         </button>
