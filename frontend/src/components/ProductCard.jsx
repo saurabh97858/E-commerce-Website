@@ -22,6 +22,7 @@ const ProductCard = ({ product }) => {
                         src={getImageSrc(product.images?.[0])}
                         alt={product.name}
                         className="product-image"
+                        loading="lazy"
                     />
                 </div>
             </Link>
