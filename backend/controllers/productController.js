@@ -1,9 +1,9 @@
 const Product = require('../models/Product');
 
-// Get all products (with search and filter)
+// Get all products (with search, filter and pagination)
 exports.getProducts = async (req, res) => {
     try {
-        const { search, category } = req.query;
+        const { search, category, page = 1, limit = 20 } = req.query;
         let query = {};
         if (search) {
             query.name = { $regex: search, $options: 'i' };
@@ -11,7 +11,14 @@ exports.getProducts = async (req, res) => {
         if (category) {
             query.category = category;
         }
-        const products = await Product.find(query).populate('category', 'name');
+        
+        const skip = (page - 1) * limit;
+        const products = await Product.find(query)
+            .populate('category', 'name')
+            .sort({ createdAt: -1 })
+            .limit(parseInt(limit))
+            .skip(skip);
+            
         res.json(products);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -35,13 +42,9 @@ exports.getProduct = async (req, res) => {
 exports.createProduct = async (req, res) => {
     try {
         const { name, price, description, category, stock, sizes } = req.body;
-        // Convert uploaded files to base64 strings
-        const images = req.files ? req.files.map(file => {
-            const fs = require('fs');
-            const data = fs.readFileSync(file.path);
-            const base64 = data.toString('base64');
-            return `data:${file.mimetype};base64,${base64}`;
-        }) : [];
+        
+        // Use relative file paths instead of base64
+        const images = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];
 
         // Parse sizes string back to array if sent as JSON from frontend FormData
         let parsedSizes = [];
@@ -84,13 +87,10 @@ exports.updateProduct = async (req, res) => {
         if (sizes) {
             product.sizes = typeof sizes === 'string' ? JSON.parse(sizes) : sizes;
         }
+        
+        // Update images with relative paths if new ones are uploaded
         if (req.files && req.files.length > 0) {
-            product.images = req.files.map(file => {
-                const fs = require('fs');
-                const data = fs.readFileSync(file.path);
-                const base64 = data.toString('base64');
-                return `data:${file.mimetype};base64,${base64}`;
-            });
+            product.images = req.files.map(file => `/uploads/${file.filename}`);
         }
         const updated = await product.save();
         res.json(updated);

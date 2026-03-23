@@ -86,3 +86,47 @@ exports.getAdmins = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// Update an admin
+exports.updateAdmin = async (req, res) => {
+    try {
+        const { name, surname, email, address, city, pincode, gender, mobile, password } = req.body;
+        const admin = await User.findById(req.params.id);
+
+        if (!admin || admin.role !== 'admin') {
+            return res.status(404).json({ message: 'Admin not found' });
+        }
+
+        admin.name = name || admin.name;
+        admin.surname = surname || admin.surname;
+        admin.email = email || admin.email;
+        admin.address = address || admin.address;
+        admin.city = city || admin.city;
+        admin.pincode = pincode || admin.pincode;
+        admin.gender = gender || admin.gender;
+        admin.mobile = mobile || admin.mobile;
+
+        if (password) {
+            admin.password = password;
+        }
+
+        await admin.save();
+        res.json({ message: 'Admin updated successfully', admin: { _id: admin._id, name: admin.name, email: admin.email } });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Delete an admin
+exports.deleteAdmin = async (req, res) => {
+    try {
+        const admin = await User.findById(req.params.id);
+        if (!admin || admin.role !== 'admin') {
+            return res.status(404).json({ message: 'Admin not found' });
+        }
+        await User.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Admin deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
