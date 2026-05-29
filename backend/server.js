@@ -47,13 +47,27 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // ===== STATIC FILES =====
 const isVercel = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
-const uploadsDir = isVercel ? '/tmp/uploads' : path.join(__dirname, 'uploads');
+const localUploadsDir = path.join(__dirname, 'uploads');
+const tmpUploadsDir = '/tmp/uploads';
 
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
+// Ensure the local uploads directory exists
+if (!fs.existsSync(localUploadsDir)) {
+    fs.mkdirSync(localUploadsDir, { recursive: true });
 }
 
-app.use('/uploads', express.static(uploadsDir, {
+// Serve from /tmp/uploads first if on Vercel (for runtime uploaded files)
+if (isVercel) {
+    if (!fs.existsSync(tmpUploadsDir)) {
+        fs.mkdirSync(tmpUploadsDir, { recursive: true });
+    }
+    app.use('/uploads', express.static(tmpUploadsDir, {
+        maxAge: '1d',
+        etag: true
+    }));
+}
+
+// Serve from local uploads folder (for committed / default files)
+app.use('/uploads', express.static(localUploadsDir, {
     maxAge: '1d',
     etag: true
 }));
