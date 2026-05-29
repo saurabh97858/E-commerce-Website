@@ -62,7 +62,6 @@ const Header = () => {
                         {!user ? (
                             <div className="auth-buttons">
                                 <Link to="/login" className="auth-link login-link">Login</Link>
-                                <Link to="/login?tab=register" className="auth-link signup-link">Sign Up</Link>
                             </div>
                         ) : (
                             <div 
