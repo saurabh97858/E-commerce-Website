@@ -1,0 +1,162 @@
+const User = require('../models/User');
+const Order = require('../models/Order');
+const Product = require('../models/Product');
+const Category = require('../models/Category');
+
+// Dashboard stats
+exports.getDashboard = async (req, res) => {
+    try {
+        const totalUsers = await User.countDocuments({ role: 'user' });
+        const totalProducts = await Product.countDocuments();
+        const totalOrders = await Order.countDocuments();
+        const totalCategories = await Category.countDocuments();
+        const orders = await Order.find();
+        const totalRevenue = orders.reduce((sum, order) => sum + order.totalAmount, 0);
+        const pendingOrders = await Order.countDocuments({ status: 'Pending' });
+        const deliveredOrders = await Order.countDocuments({ status: 'Delivered' });
+
+        // Sales over the last 7 days
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        const dailySales = await Order.aggregate([
+            { $match: { createdAt: { $gte: sevenDaysAgo } } },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                    sales: { $sum: "$totalAmount" },
+                    orders: { $sum: 1 }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+
+        const salesData = [];
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            const dateStr = date.toISOString().split('T')[0];
+            const match = dailySales.find(d => d._id === dateStr);
+            salesData.push({
+                date: dateStr,
+                sales: match ? match.sales : 0,
+                orders: match ? match.orders : 0
+            });
+        }
+
+        res.json({
+            totalUsers, totalProducts, totalOrders, totalCategories,
+            totalRevenue, pendingOrders, deliveredOrders,
+            dailySales: salesData
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Category-wise report
+exports.getReports = async (req, res) => {
+    try {
+        const categories = await Category.find();
+        const report = [];
+        for (const cat of categories) {
+            const products = await Product.find({ category: cat._id });
+            const productIds = products.map(p => p._id);
+            const orders = await Order.find({ 'items.product': { $in: productIds } });
+            let totalSales = 0;
+            let totalQuantity = 0;
+            orders.forEach(order => {
+                order.items.forEach(item => {
+                    if (productIds.some(id => id.toString() === item.product.toString())) {
+                        totalSales += item.price * item.quantity;
+                        totalQuantity += item.quantity;
+                    }
+                });
+            });
+            report.push({
+                category: cat.name,
+                totalProducts: products.length,
+                totalStock: products.reduce((sum, p) => sum + p.stock, 0),
+                totalSales,
+                totalQuantitySold: totalQuantity
+            });
+        }
+        res.json(report);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Create a new admin
+exports.createAdmin = async (req, res) => {
+    try {
+        const { name, surname, email, password, address, city, pincode, gender, mobile } = req.body;
+
+        const userExists = await User.findOne({ email });
+        if (userExists) {
+            return res.status(400).json({ message: 'User already exists' });
+        }
+
+        const admin = new User({
+            name, surname, email, password, address, city, pincode, gender, mobile, role: 'admin'
+        });
+
+        await admin.save();
+        res.status(201).json({ message: 'Admin created successfully', admin: { _id: admin._id, name: admin.name, email: admin.email } });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Get all admins
+exports.getAdmins = async (req, res) => {
+    try {
+        const admins = await User.find({ role: 'admin' }).select('-password');
+        res.json(admins);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Update an admin
+exports.updateAdmin = async (req, res) => {
+    try {
+        const { name, surname, email, address, city, pincode, gender, mobile, password } = req.body;
+        const admin = await User.findById(req.params.id);
+
+        if (!admin || admin.role !== 'admin') {
+            return res.status(404).json({ message: 'Admin not found' });
+        }
+
+        admin.name = name || admin.name;
+        admin.surname = surname || admin.surname;
+        admin.email = email || admin.email;
+        admin.address = address || admin.address;
+        admin.city = city || admin.city;
+        admin.pincode = pincode || admin.pincode;
+        admin.gender = gender || admin.gender;
+        admin.mobile = mobile || admin.mobile;
+
+        if (password) {
+            admin.password = password;
+        }
+
+        await admin.save();
+        res.json({ message: 'Admin updated successfully', admin: { _id: admin._id, name: admin.name, email: admin.email } });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Delete an admin
+exports.deleteAdmin = async (req, res) => {
+    try {
+        const admin = await User.findById(req.params.id);
+        if (!admin || admin.role !== 'admin') {
+            return res.status(404).json({ message: 'Admin not found' });
+        }
+        await User.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Admin deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
