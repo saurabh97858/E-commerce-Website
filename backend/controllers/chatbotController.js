@@ -535,9 +535,11 @@ Guidance on Order Management:
     } catch (error) {
         console.error("Chatbot Controller Error:", error);
         res.status(500).json({
-            reply: "Sorry, I ran into an unexpected error. Please try again.",
+            reply: "Sorry, I ran into an unexpected error: " + error.message,
             products: [],
-            orders: []
+            orders: [],
+            debugError: error.message,
+            debugStack: error.stack
         });
     }
 };

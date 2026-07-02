@@ -207,9 +207,10 @@ const Chatbot = () => {
             }
         } catch (error) {
             console.error('Chatbot error:', error);
+            const errMsg = error.response?.data?.reply || `Sorry, I ran into an error connecting to the AI server. (${error.message})`;
             setMessages(prev => [...prev, {
                 sender: 'bot',
-                text: "Sorry, I ran into an error connecting to the AI server. Please check your connection and try again.",
+                text: errMsg,
                 products: []
             }]);
         } finally {
