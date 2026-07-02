@@ -132,8 +132,7 @@ a {
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
   box-shadow: 0 4px 24px rgba(0,0,0,0.25);
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 100;
 }
 
@@ -8194,5 +8193,103 @@ select option {
 .pro-page-narrow-contact .faq-answer-content {
   font-size: 11px;
   line-height: 1.4;
+}
+
+/* ===== EXTRA INNER COMPACTNESS FOR FEEDBACK & CONTACT PAGES ===== */
+.pro-page-narrow-feedback,
+.pro-page-narrow-contact {
+  max-width: 680px !important;
+  margin: 10px auto !important;
+}
+
+.pro-page-narrow-feedback .feedback-intro-card,
+.pro-page-narrow-feedback .sentiment-widget-card,
+.pro-page-narrow-feedback .feedback-form-card,
+.pro-page-narrow-contact .contact-info-card,
+.pro-page-narrow-contact .contact-form-card {
+  padding: 8px 12px !important;
+}
+
+.pro-page-narrow-feedback .form-group,
+.pro-page-narrow-contact .form-group {
+  margin-bottom: 8px !important;
+  gap: 3px !important;
+}
+
+.pro-page-narrow-feedback label,
+.pro-page-narrow-contact label {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  margin-bottom: 2px !important;
+}
+
+.pro-page-narrow-feedback input,
+.pro-page-narrow-feedback select,
+.pro-page-narrow-feedback textarea,
+.pro-page-narrow-contact input,
+.pro-page-narrow-contact select,
+.pro-page-narrow-contact textarea {
+  padding: 6px 10px !important;
+  font-size: 11.5px !important;
+  height: 30px !important;
+}
+
+.pro-page-narrow-feedback textarea,
+.pro-page-narrow-contact textarea {
+  height: 60px !important;
+  min-height: 60px !important;
+  resize: none !important;
+}
+
+.pro-page-narrow-feedback button[type="submit"],
+.pro-page-narrow-contact button[type="submit"] {
+  height: 32px !important;
+  line-height: 32px !important;
+  font-size: 11.5px !important;
+  padding: 0 16px !important;
+  margin-top: 4px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* ===== PREMIUM HOVER EFFECTS & TEXT COLOR TRANSITIONS ===== */
+.product-card {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+
+.product-card:hover .product-card-name {
+  color: var(--primary) !important;
+}
+
+.nav-link {
+  transition: color 0.2s ease, text-shadow 0.2s ease !important;
+}
+
+.nav-link:hover {
+  color: var(--primary) !important;
+  text-shadow: 0 0 8px var(--primary-glow);
+}
+
+.auth-submit-btn,
+.btn-checkout,
+.contact-submit-btn,
+.load-more-btn,
+.newsletter-btn,
+.add-to-cart-btn,
+.view-link {
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+
+.auth-submit-btn:hover:not(:disabled),
+.btn-checkout:hover:not(:disabled),
+.contact-submit-btn:hover:not(:disabled),
+.load-more-btn:hover:not(:disabled),
+.newsletter-btn:hover:not(:disabled),
+.add-to-cart-btn:hover:not(:disabled),
+.view-link:hover {
+  filter: brightness(1.15) !important;
+  letter-spacing: 0.5px !important;
+  box-shadow: 0 4px 16px var(--primary-glow) !important;
 }
 

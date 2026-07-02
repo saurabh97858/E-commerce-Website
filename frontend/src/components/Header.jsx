@@ -76,7 +76,11 @@ const Header = () => {
             <div className="header-inner">
                 <div className="header-top">
                     <Link to="/" className="logo">
-                        <img src="/smartshop-logo.png" alt="SoleStreet Patna" style={{ height: 32, marginRight: 8 }} onError={(e) => e.target.style.display = 'none'} />
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 8, filter: 'drop-shadow(0 0 6px var(--primary))' }}>
+                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <path d="M16 10a4 4 0 0 1-8 0"></path>
+                        </svg>
                         <div className="logo-text-wrapper">
                             <span className="logo-text">SOLESTREET</span>
                             <span className="logo-sub">Patna</span>
