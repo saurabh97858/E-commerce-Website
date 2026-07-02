@@ -76,7 +76,6 @@ const ProductCard = ({ product }) => {
                         src={getImageSrc(product.images?.[0])}
                         alt={product.name}
                         className="product-image"
-                        loading="lazy"
                     />
                     <button
                         className={`wishlist-card-btn${isWishlisted ? ' active' : ''}`}

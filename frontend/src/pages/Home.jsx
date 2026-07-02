@@ -7,9 +7,30 @@ import { HeroCarousel } from '../components/HeroCarousel';
 
 // ─── Main Home Page ─────────────────────────────────────────────────
 const Home = () => {
-    const [products, setProducts] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [products, setProducts] = useState(() => {
+        try {
+            const cached = localStorage.getItem('cached_home_products');
+            return cached ? JSON.parse(cached) : [];
+        } catch {
+            return [];
+        }
+    });
+    const [categories, setCategories] = useState(() => {
+        try {
+            const cached = localStorage.getItem('cached_home_categories');
+            return cached ? JSON.parse(cached) : [];
+        } catch {
+            return [];
+        }
+    });
+    const [loading, setLoading] = useState(() => {
+        try {
+            const cached = localStorage.getItem('cached_home_products');
+            return cached && JSON.parse(cached).length > 0 ? false : true;
+        } catch {
+            return true;
+        }
+    });
     const [loadingMore, setLoadingMore] = useState(false);
     const [searchParams] = useSearchParams();
     const [page, setPage] = useState(1);
@@ -21,6 +42,7 @@ const Home = () => {
             try {
                 const { data } = await API.get('/categories');
                 setCategories(data);
+                localStorage.setItem('cached_home_categories', JSON.stringify(data));
             } catch (error) {
                 console.error('Error fetching categories:', error);
             }
@@ -31,7 +53,7 @@ const Home = () => {
     const fetchProducts = useCallback(async (pageNum, isLoadMore = false) => {
         try {
             if (isLoadMore) setLoadingMore(true);
-            else setLoading(true);
+            else if (products.length === 0) setLoading(true);
 
             const search = searchParams.get('search') || '';
             const category = searchParams.get('category') || '';
@@ -74,6 +96,7 @@ const Home = () => {
                 setProducts(prev => [...prev, ...processed]);
             } else {
                 setProducts(processed);
+                localStorage.setItem('cached_home_products', JSON.stringify(processed));
             }
 
             setHasMore(data.length === 10);
