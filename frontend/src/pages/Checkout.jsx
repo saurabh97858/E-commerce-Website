@@ -260,7 +260,6 @@ const Checkout = () => {
                     <FaArrowLeft /> Back to Cart
                 </Link>
                 <div className="checkout-page-title-wrap">
-                    <FaCreditCard className="checkout-page-icon" />
                     <div>
                         <h1 className="checkout-page-title">Secure Unified Checkout</h1>
                         <p className="checkout-page-sub">

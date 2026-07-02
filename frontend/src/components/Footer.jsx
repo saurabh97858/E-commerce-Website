@@ -1,10 +1,15 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { FaInstagram, FaTwitter, FaFacebookF, FaYoutube, FaHeart, FaCheckCircle } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
 import API from '../api/axios';
 
 const Footer = () => {
+    const location = useLocation();
+    if (location.pathname === '/checkout') {
+        return null;
+    }
+
     const year = new Date().getFullYear();
     const { user } = useAuth();
     const [msg, setMsg] = useState('');
