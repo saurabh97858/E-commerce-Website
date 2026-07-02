@@ -8499,3 +8499,119 @@ select option {
   border-radius: var(--radius-sm) !important;
 }
 
+/* ========================================================
+   RESPONSIVE DESIGN (MOBILE & TABLET) OVERRIDES
+   ======================================================== */
+
+@media (max-width: 992px) {
+  /* Cart stack */
+  .cart-layout {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+  
+  .cart-summary-card {
+    position: static !important; /* disable sticky on stack */
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  /* Checkout stack */
+  .checkout-layout {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+  
+  .checkout-summary-sticky {
+    position: static !important;
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 768px) {
+  /* General page padding adjustments */
+  .checkout-page,
+  .pro-page-profile-compact {
+    padding: 10px 8px !important;
+    margin: 8px auto !important;
+  }
+
+  /* Profile page on tablet/mobile */
+  .pro-page-profile-compact .profile-avatar-section {
+    flex-direction: column !important;
+    text-align: center !important;
+    gap: 10px !important;
+  }
+
+  .pro-page-profile-compact .profile-avatar-lg {
+    margin: 0 auto !important;
+  }
+}
+
+@media (max-width: 576px) {
+  /* Cart item card layout grid transformation on mobile */
+  .cart-item-card {
+    display: grid !important;
+    grid-template-columns: 70px 1fr !important;
+    grid-template-rows: auto auto !important;
+    gap: 10px !important;
+    padding: 12px !important;
+    position: relative !important;
+  }
+  
+  .cart-item-image-wrapper {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .cart-item-image {
+    width: 60px !important;
+    height: 60px !important;
+  }
+  
+  .cart-item-details {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    align-self: center !important;
+  }
+  
+  .cart-item-qty {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    justify-self: start !important;
+    align-self: center !important;
+    margin: 0 !important;
+  }
+  
+  .cart-item-total {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    justify-self: end !important;
+    align-self: center !important;
+    padding-right: 36px !important;
+    font-size: 13px !important;
+  }
+  
+  .cart-item-remove {
+    position: absolute !important;
+    bottom: 12px !important;
+    right: 12px !important;
+    top: auto !important;
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  /* Checkout form columns stack */
+  .panel-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .form-row-2col {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+}
+
