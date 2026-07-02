@@ -50,21 +50,30 @@ const Checkout = () => {
 
     /* Pre-fill fields from logged-in user profile */
     useEffect(() => {
-        if (user) {
-            const parts = (user.name || '').split(' ');
-            setContact({
-                firstName: parts[0] || '',
-                lastName:  parts.slice(1).join(' ') || '',
-                email:     user.email || '',
-                mobile:    user.mobile || ''
-            });
-            setAddress(prev => ({
-                ...prev,
-                address: user.address || '',
-                city:    user.city    || '',
-                pincode: user.pincode || ''
-            }));
-        }
+        const fetchUserProfile = async () => {
+            if (!user) return;
+            try {
+                const { data } = await API.get('/auth/profile');
+                if (data) {
+                    const parts = (data.name || '').split(' ');
+                    setContact({
+                        firstName: parts[0] || '',
+                        lastName:  parts.slice(1).join(' ') || '',
+                        email:     data.email || '',
+                        mobile:    data.mobile || ''
+                    });
+                    setAddress(prev => ({
+                        ...prev,
+                        address: data.address || '',
+                        city:    data.city    || '',
+                        pincode: data.pincode || ''
+                    }));
+                }
+            } catch (error) {
+                console.error("Error fetching user profile at checkout:", error);
+            }
+        };
+        fetchUserProfile();
     }, [user]);
 
     /* Auto-fetch City and State from PIN Code */
