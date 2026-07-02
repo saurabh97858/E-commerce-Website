@@ -3,7 +3,7 @@ const Category = require('../models/Category');
 const Order = require('../models/Order');
 const Ticket = require('../models/Ticket');
 const ChatHistory = require('../models/ChatHistory');
-const translations = require('../locales/chatbotTranslations.json');
+const translations = require('../locales/chatbotTranslations');
 
 // Helper to retrieve dynamic translations
 function getTranslation(langKey, stringKey, params = {}) {
