@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { register, login, getProfile, changePassword, toggleWishlist, getWishlist } = require('../controllers/authController');
+const { register, login, getProfile, updateProfile, changePassword, toggleWishlist, getWishlist } = require('../controllers/authController');
 const auth = require('../middleware/auth');
 
 /**
@@ -77,6 +77,7 @@ router.post('/login', login);
  *         description: Not authorized
  */
 router.get('/profile', auth, getProfile);
+router.put('/profile', auth, updateProfile);
 
 /**
  * @swagger

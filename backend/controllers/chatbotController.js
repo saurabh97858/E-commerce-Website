@@ -3,6 +3,7 @@ const Category = require('../models/Category');
 const Order = require('../models/Order');
 const Ticket = require('../models/Ticket');
 const ChatHistory = require('../models/ChatHistory');
+const User = require('../models/User');
 const translations = require('../locales/chatbotTranslations');
 
 // Helper to retrieve dynamic translations
@@ -106,68 +107,125 @@ exports.handleChatQuery = async (req, res) => {
             });
         }
 
-        // Direct Cancellation Intercept (Ensures 100% reliable cancellation via button click or text query)
-        let cancelMatch = message.match(/cancel\s+order\s+([0-9a-fA-F]{24})/i) || message.match(/cancel\s+([0-9a-fA-F]{24})/i);
-        if (cancelMatch && req.user) {
-            const orderIdToCancel = cancelMatch[1];
-            const orderToCancel = await Order.findOne({ _id: orderIdToCancel, user: req.user._id });
+        // Dialogue State Machine Intercepts
+        if (history.state === 'AWAITING_CANCEL_REASON' && req.user) {
+            const orderId = history.tempData.orderId;
+            history.tempData.cancelReason = message;
+            history.state = 'AWAITING_CANCEL_METHOD';
+            history.markModified('tempData');
+            await history.save();
+
+            const replyText = `Thank you. I have recorded your reason: "${message}".\n\nWould you like to **Replace** the item, **Return** it, or get a **Refund**? (Please reply with Replace, Return, or Refund).`;
             
-            // Detect user language for the cancellation intercept response
-            const textLower = message.toLowerCase();
-            const isBhojpuri = textLower.includes('ba') || textLower.includes('haal') || textLower.includes('batawa') || textLower.includes('kare');
-            const isTamil = textLower.includes('tamil') || textLower.includes('vanakkam');
-            const isHindi = textLower.includes('karna') || textLower.includes('hai') || textLower.includes('kya');
-            let detectedLang = 'en';
-            if (isBhojpuri) detectedLang = 'bho';
-            else if (isTamil) detectedLang = 'tamil';
-            else if (isHindi) detectedLang = 'hi';
-
-            let responseText = "";
-            let actionStatus = null;
-
-            if (orderToCancel) {
-                if (orderToCancel.status === 'Cancelled') {
-                    responseText = getTranslation(detectedLang, 'cancel_already');
-                } else if (orderToCancel.status === 'Delivered') {
-                    responseText = getTranslation(detectedLang, 'cancel_delivered');
-                } else {
-                    orderToCancel.status = 'Cancelled';
-                    await orderToCancel.save();
-                    responseText = getTranslation(detectedLang, 'cancel_success', { orderId: orderIdToCancel.slice(-6) });
-                    actionStatus = "cancel_order";
-                }
-            } else {
-                responseText = getTranslation(detectedLang, 'cancel_error');
-            }
-
-            // Re-fetch updated orders
-            const recentOrders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 }).limit(3);
-            const frontendOrders = recentOrders.map(o => ({
-                _id: o._id.toString(),
-                status: o.status,
-                totalAmount: o.totalAmount,
-                estimatedDelivery: o.estimatedDelivery,
-                createdAt: o.createdAt,
-                items: o.items.map(item => ({
-                    name: item.name,
-                    price: item.price,
-                    quantity: item.quantity,
-                    size: item.size
-                }))
-            }));
-
-            // Save to history memory
             history.messages.push({ sender: 'user', text: message, timestamp: new Date() });
-            history.messages.push({ sender: 'bot', text: responseText, timestamp: new Date() });
+            history.messages.push({ sender: 'bot', text: replyText, timestamp: new Date() });
             await history.save();
 
             return res.json({
-                reply: responseText,
+                reply: replyText,
                 products: [],
-                orders: frontendOrders,
+                orders: [],
+                detectedLanguage: "English/Hinglish",
+                intent: "cancel_order",
+                action: "request_cancel_method"
+            });
+        }
+
+        if (history.state === 'AWAITING_CANCEL_METHOD' && req.user) {
+            const orderId = history.tempData.orderId;
+            const cancelReason = history.tempData.cancelReason || "No reason specified";
+            const choice = message.toLowerCase().trim();
+
+            let replyText = "";
+            let actionStatus = "cancel_order";
+
+            const orderToCancel = await Order.findOne({ _id: orderId, user: req.user._id });
+
+            if (orderToCancel) {
+                if (choice.includes('refund')) {
+                    orderToCancel.status = 'Cancelled';
+                    await orderToCancel.save();
+                    replyText = `✅ **Order Cancelled for Refund:** Order #${orderId.slice(-6)} has been cancelled. Your refund of ₹${orderToCancel.totalAmount} will be processed back to your original payment mode within **approx 24 hours**. Reason: ${cancelReason}.`;
+                } else if (choice.includes('replace')) {
+                    orderToCancel.status = 'Cancelled';
+                    await orderToCancel.save();
+                    replyText = `🔄 **Replacement Scheduled:** Order #${orderId.slice(-6)} has been scheduled for replacement. Our courier executive will pick up the item and deliver the replacement. Reason: ${cancelReason}.`;
+                } else if (choice.includes('return')) {
+                    orderToCancel.status = 'Cancelled';
+                    await orderToCancel.save();
+                    replyText = `↩️ **Return Pickup Scheduled:** Order #${orderId.slice(-6)} has been scheduled for return. Pickup will be completed within 2-3 business days. Reason: ${cancelReason}.`;
+                } else {
+                    replyText = `⚠️ Please reply with either **Replace**, **Return**, or **Refund** for Order #${orderId.slice(-6)}.`;
+                    actionStatus = "request_cancel_method";
+                }
+            } else {
+                replyText = "⚠️ Order not found or permission denied.";
+                actionStatus = "cancel_order_error";
+            }
+
+            if (actionStatus !== "request_cancel_method") {
+                history.state = null;
+                history.tempData = {};
+                history.markModified('tempData');
+            }
+            await history.save();
+
+            history.messages.push({ sender: 'user', text: message, timestamp: new Date() });
+            history.messages.push({ sender: 'bot', text: replyText, timestamp: new Date() });
+            await history.save();
+
+            return res.json({
+                reply: replyText,
+                products: [],
+                orders: [],
                 detectedLanguage: "English/Hinglish",
                 intent: "cancel_order",
                 action: actionStatus
+            });
+        }
+
+        // Direct Button Click or Query Cancellation Trigger Intercept
+        let cancelMatch = message.match(/cancel\s+order\s+([0-9a-fA-F]{24})/i) || message.match(/cancel\s+([0-9a-fA-F]{24})/i);
+        if (cancelMatch && req.user) {
+            const orderIdToCancel = cancelMatch[1];
+            
+            // Check if order is already cancelled or delivered
+            const checkOrder = await Order.findOne({ _id: orderIdToCancel, user: req.user._id });
+            if (checkOrder) {
+                if (checkOrder.status === 'Cancelled') {
+                    const responseText = "This order is already cancelled.";
+                    history.messages.push({ sender: 'user', text: message, timestamp: new Date() });
+                    history.messages.push({ sender: 'bot', text: responseText, timestamp: new Date() });
+                    await history.save();
+                    return res.json({ reply: responseText, products: [], orders: [], detectedLanguage: "English", intent: "cancel_order" });
+                }
+                if (checkOrder.status === 'Delivered') {
+                    const responseText = "Delivered orders cannot be cancelled. You can register a return ticket instead.";
+                    history.messages.push({ sender: 'user', text: message, timestamp: new Date() });
+                    history.messages.push({ sender: 'bot', text: responseText, timestamp: new Date() });
+                    await history.save();
+                    return res.json({ reply: responseText, products: [], orders: [], detectedLanguage: "English", intent: "cancel_order" });
+                }
+            }
+
+            history.state = "AWAITING_CANCEL_REASON";
+            history.tempData = { orderId: orderIdToCancel };
+            history.markModified('tempData');
+            await history.save();
+
+            const replyText = "Please write the reason for cancelling this order:";
+
+            history.messages.push({ sender: 'user', text: message, timestamp: new Date() });
+            history.messages.push({ sender: 'bot', text: replyText, timestamp: new Date() });
+            await history.save();
+
+            return res.json({
+                reply: replyText,
+                products: [],
+                orders: [],
+                detectedLanguage: "English/Hinglish",
+                intent: "cancel_order",
+                action: "request_cancel_reason"
             });
         }
 
@@ -261,6 +319,7 @@ Important Store Info:
   * Free Shipping on orders above ₹1000!
 - Delivery: 3-5 business days across India. Dispatched within 24 hours.
 - Returns: 7-day hassle-free return. Email: support@solestreetpatna.com
+- Refund Processing: Takes approx 24 hours after cancellation or return receipt.
 
 Context Data:
 - Logged-in User: ${userContext ? JSON.stringify(userContext) : 'Guest User (Not logged in)'}
@@ -277,17 +336,21 @@ CRITICAL MULTILINGUAL & RESPONSE RULES:
    - "detectedLanguage" (string): "English", "Hindi", "Hinglish", "Bhojpuri", "Tamil" etc.
    - "intent" (string): The detected intent name.
    - "productIds" (array of strings): Up to 4 matching product IDs from the catalog.
-   - "action" (string or null): Action name to execute: "cancel_order", "change_address", "create_ticket", "human_handoff", or null.
+   - "action" (string or null): Action name to execute: "request_cancel_reason", "change_address", "change_profile_address", "create_ticket", "human_handoff", or null.
    - "actionData" (object or null): Payload parameters for action if triggered:
-     * For "cancel_order": { "orderId": "idString" }
+     * For "request_cancel_reason": { "orderId": "idString" }
      * For "change_address": { "orderId": "idString", "newAddress": "updated address string" }
+     * For "change_profile_address": { "newAddress": "updated address details string" }
      * For "create_ticket": { "subject": "Short summary of problem", "description": "Details", "category": "Order/Refund/Delivery/Quality/Other" }
      * For "human_handoff": {}
 
-Guidance on Order Management:
-- If user wants to track or cancel orders:
-  * If Guest: Ask them to log in to see their orders.
-  * If Logged in: List their recent orders. Always show their specific details. If they want to cancel, confirm which one, explain the steps, and once confirmed, pass "action": "cancel_order" and the "orderId".`;
+Guidance on Account & Order Management:
+- Current Saved Address: If the user asks for their current address, retrieve it from the Logged-in User profile data and display it clearly. If they want to change their profile address, prompt them to write the new address, and set action to "change_profile_address" with the updated details.
+- Last Order Details: If the user asks for their last order, look at the first element (index 0) in "User's Recent Orders" (which has the latest order). Display the order ID (last 6 characters), status, amount, estimated delivery, and items.
+- Cancellation Flow: If they ask to cancel an order (especially their last order):
+  * If Logged in: Tell them you can assist with cancellation, identify the orderId from User's Recent Orders, and set action to "request_cancel_reason" with the orderId. Ask the user friendly: "Please provide the reason for cancellation."
+  * DO NOT cancel immediately, and do not trigger "cancel_order" directly. The backend state machine will process the reason and Replace/Refund options.
+- Refund Timeline: If they ask when their refund will arrive, tell them it takes approx 24 hours.`;
 
         let replyText = "";
         let detectedLanguage = "English";
@@ -414,6 +477,24 @@ Guidance on Order Management:
 
         if (action && req.user) {
             try {
+                if (action === "request_cancel_reason" && actionData?.orderId) {
+                    history.state = "AWAITING_CANCEL_REASON";
+                    history.tempData = { orderId: actionData.orderId };
+                    history.markModified('tempData');
+                    await history.save();
+                }
+
+                if (action === "change_profile_address" && actionData?.newAddress) {
+                    const userObj = await User.findById(req.user._id);
+                    if (userObj) {
+                        userObj.address = actionData.newAddress;
+                        if (actionData.city) userObj.city = actionData.city;
+                        if (actionData.pincode) userObj.pincode = actionData.pincode;
+                        await userObj.save();
+                        replyText += `\n\n✅ **Profile Saved Address Updated:** Your profile default address has been updated successfully to: "${actionData.newAddress}".`;
+                    }
+                }
+
                 if (action === "cancel_order" && actionData?.orderId) {
                     const orderToCancel = await Order.findOne({ _id: actionData.orderId, user: req.user._id });
                     if (orderToCancel) {

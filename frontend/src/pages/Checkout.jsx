@@ -198,6 +198,18 @@ const Checkout = () => {
 
             // Post order to backend
             const { data: order } = await API.post('/orders/place', { shippingAddress });
+
+            // Auto-save this shipping address to the user's profile
+            try {
+                await API.put('/auth/profile', {
+                    address: address.address,
+                    city: `${address.city}, ${address.state}`,
+                    pincode: address.pincode,
+                    mobile: contact.mobile
+                });
+            } catch (profileSaveErr) {
+                console.error("Failed to auto-save address to user profile:", profileSaveErr);
+            }
             
             // Process fake payment transaction
             await API.post('/payments/process', {

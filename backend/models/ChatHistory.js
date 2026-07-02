@@ -14,7 +14,9 @@ const chatHistorySchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     sessionId: { type: String, unique: true, sparse: true }, // For guest users
     messages: [chatMessageSchema],
-    handoff: { type: Boolean, default: false }
+    handoff: { type: Boolean, default: false },
+    state: { type: String, default: null }, // e.g. "AWAITING_CANCEL_REASON", "AWAITING_CANCEL_METHOD"
+    tempData: { type: mongoose.Schema.Types.Mixed, default: {} } // Temporary storage
 }, { timestamps: true });
 
 module.exports = mongoose.model('ChatHistory', chatHistorySchema);

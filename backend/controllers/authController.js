@@ -113,3 +113,28 @@ exports.getWishlist = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// Update Profile details
+exports.updateProfile = async (req, res) => {
+    try {
+        const { name, surname, mobile, address, city, pincode, gender } = req.body;
+        const user = await User.findById(req.user._id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (name !== undefined) user.name = name;
+        if (surname !== undefined) user.surname = surname;
+        if (mobile !== undefined) user.mobile = mobile;
+        user.address = address !== undefined ? address : user.address;
+        user.city = city !== undefined ? city : user.city;
+        user.pincode = pincode !== undefined ? pincode : user.pincode;
+        if (gender !== undefined) user.gender = gender;
+
+        await user.save();
+        const updated = await User.findById(user._id).select('-password');
+        res.json({ message: 'Profile updated successfully', user: updated });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
