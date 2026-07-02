@@ -34,6 +34,10 @@ app.use(cors({
         // Allow requests with no origin (mobile apps, curl, Postman)
         if (!origin) return callback(null, true);
         if (allowedOrigins.includes(origin)) return callback(null, true);
+        // Allow any Vercel subdomain deployment dynamically
+        if (origin.endsWith('.vercel.app') || origin.includes('vercel.app')) {
+            return callback(null, true);
+        }
         callback(new Error(`CORS policy: origin ${origin} not allowed`));
     },
     credentials: true,
