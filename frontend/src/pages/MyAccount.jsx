@@ -112,13 +112,13 @@ const MyAccount = () => {
     ];
 
     return (
-        <div className="pro-page" style={{ maxWidth: '680px', margin: '20px auto' }}>
-            <div className="pro-page-header" style={{ marginBottom: '16px' }}>
+        <div className="pro-page pro-page-profile-compact">
+            <div className="pro-page-header">
                 <div className="pro-page-header-left">
                     <FaUser className="pro-page-icon" />
                     <div>
-                        <h1 className="pro-page-title" style={{ fontSize: '18px' }}>My Account</h1>
-                        <p className="pro-page-subtitle" style={{ fontSize: '11px' }}>Manage your profile and shipping address</p>
+                        <h1 className="pro-page-title">My Account</h1>
+                        <p className="pro-page-subtitle">Manage your profile and shipping address</p>
                     </div>
                 </div>
             </div>
@@ -126,23 +126,25 @@ const MyAccount = () => {
             {success && <div className="success-msg" style={{ fontSize: '12px', padding: '8px 12px', marginBottom: '12px' }}>{success}</div>}
             {error && <div className="error-msg" style={{ fontSize: '12px', padding: '8px 12px', marginBottom: '12px' }}>{error}</div>}
 
-            <div className="profile-card" style={{ padding: '16px', background: 'var(--bg-card)', borderRadius: 'var(--radius-md)' }}>
-                <div className="profile-avatar-section" style={{ marginBottom: '16px' }}>
-                    <div className="profile-avatar-lg" style={{ width: '60px', height: '60px', fontSize: '20px' }}>
+            <div className="profile-card">
+                <div className="profile-avatar-section">
+                    <div className="profile-avatar-lg">
                         {profile.name.charAt(0)}{profile.surname?.charAt(0) || ''}
                     </div>
-                    <h2 className="profile-fullname" style={{ fontSize: '16px', marginTop: '8px' }}>{profile.name} {profile.surname}</h2>
-                    <span className="profile-role-badge" style={{ fontSize: '10px', padding: '2px 8px' }}>{profile.role?.replace('_', ' ') || 'Customer'}</span>
+                    <div>
+                        <h2 className="profile-fullname">{profile.name} {profile.surname}</h2>
+                        <span className="profile-role-badge">{profile.role?.replace('_', ' ') || 'Customer'}</span>
+                    </div>
                 </div>
 
-                <div className="profile-fields" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div className="profile-fields">
                     {/* Read Only General Fields */}
                     {profileFields.map((field, i) => (
-                        <div className="profile-field" key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <div className="profile-field-icon" style={{ fontSize: '13px', color: 'var(--primary)' }}>{field.icon}</div>
+                        <div className="profile-field" key={i}>
+                            <div className="profile-field-icon">{field.icon}</div>
                             <div className="profile-field-content">
-                                <span className="profile-field-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{field.label}</span>
-                                <span className="profile-field-value" style={{ fontSize: '12.5px' }}>{field.value || '—'}</span>
+                                <span className="profile-field-label">{field.label}</span>
+                                <span className="profile-field-value">{field.value || '—'}</span>
                             </div>
                         </div>
                     ))}
@@ -152,32 +154,32 @@ const MyAccount = () => {
                     {/* Editable Address Section */}
                     {!isEditing ? (
                         <>
-                            <div className="profile-field" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <div className="profile-field-icon" style={{ fontSize: '13px', color: 'var(--primary)' }}><FaPhone /></div>
+                            <div className="profile-field">
+                                <div className="profile-field-icon"><FaPhone /></div>
                                 <div className="profile-field-content">
-                                    <span className="profile-field-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Mobile Number</span>
-                                    <span className="profile-field-value" style={{ fontSize: '12.5px' }}>{profile.mobile || '—'}</span>
+                                    <span className="profile-field-label">Mobile Number</span>
+                                    <span className="profile-field-value">{profile.mobile || '—'}</span>
                                 </div>
                             </div>
-                            <div className="profile-field" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <div className="profile-field-icon" style={{ fontSize: '13px', color: 'var(--primary)' }}><FaMapMarkerAlt /></div>
+                            <div className="profile-field">
+                                <div className="profile-field-icon"><FaMapMarkerAlt /></div>
                                 <div className="profile-field-content">
-                                    <span className="profile-field-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Saved Address</span>
-                                    <span className="profile-field-value" style={{ fontSize: '12.5px' }}>{profile.address || 'No saved address'}</span>
+                                    <span className="profile-field-label">Saved Address</span>
+                                    <span className="profile-field-value">{profile.address || 'No saved address'}</span>
                                 </div>
                             </div>
-                            <div className="profile-field" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <div className="profile-field-icon" style={{ fontSize: '13px', color: 'var(--primary)' }}><FaCity /></div>
+                            <div className="profile-field">
+                                <div className="profile-field-icon"><FaCity /></div>
                                 <div className="profile-field-content">
-                                    <span className="profile-field-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>City / State</span>
-                                    <span className="profile-field-value" style={{ fontSize: '12.5px' }}>{profile.city || '—'}</span>
+                                    <span className="profile-field-label">City / State</span>
+                                    <span className="profile-field-value">{profile.city || '—'}</span>
                                 </div>
                             </div>
-                            <div className="profile-field" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <div className="profile-field-icon" style={{ fontSize: '13px', color: 'var(--primary)' }}><FaMapMarkerAlt /></div>
+                            <div className="profile-field">
+                                <div className="profile-field-icon"><FaMapMarkerAlt /></div>
                                 <div className="profile-field-content">
-                                    <span className="profile-field-label" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Pincode</span>
-                                    <span className="profile-field-value" style={{ fontSize: '12.5px' }}>{profile.pincode || '—'}</span>
+                                    <span className="profile-field-label">Pincode</span>
+                                    <span className="profile-field-value">{profile.pincode || '—'}</span>
                                 </div>
                             </div>
 

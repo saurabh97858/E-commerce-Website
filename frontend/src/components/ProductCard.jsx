@@ -51,8 +51,14 @@ const ProductCard = ({ product }) => {
         if (img.startsWith('http') || img.startsWith('data:')) {
             return img;
         }
+        let path = img;
+        if (!path.startsWith('/uploads/') && !path.startsWith('uploads/')) {
+            path = '/uploads/' + (path.startsWith('/') ? path.slice(1) : path);
+        } else if (path.startsWith('uploads/')) {
+            path = '/' + path;
+        }
         const baseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/api$/, '');
-        return `${baseUrl}${img.startsWith('/') ? '' : '/'}${img}`;
+        return `${baseUrl}${path}`;
     };
 
     const rating = product.rating || 0;

@@ -578,6 +578,12 @@ Guidance on Account & Order Management:
             }))
         }));
 
+        // Only attach orders if the query was related to cancellation, tracking, or is in active cancel dialog states
+        const shouldAttachOrders = ['order_tracking', 'cancel_order'].includes(intent) ||
+                                   ['request_cancel_reason', 'request_cancel_method', 'cancel_order', 'cancel_order_error'].includes(action) ||
+                                   history.state !== null;
+        const ordersPayload = shouldAttachOrders ? (frontendOrders || []) : [];
+
         // Update Chat History memory in DB
         history.messages.push({
             sender: 'user',
@@ -589,7 +595,7 @@ Guidance on Account & Order Management:
             sender: 'bot',
             text: replyText,
             products: validIds,
-            orders: frontendOrders || [],
+            orders: ordersPayload,
             action: action,
             ticketId: ticketId,
             timestamp: new Date()
@@ -605,7 +611,7 @@ Guidance on Account & Order Management:
         return res.json({
             reply: replyText,
             products: frontendProducts,
-            orders: frontendOrders, // Send recent orders list to frontend
+            orders: ordersPayload, // Send recent orders list to frontend only when relevant
             detectedLanguage,
             intent,
             action,

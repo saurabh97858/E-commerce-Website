@@ -181,7 +181,20 @@ const Header = () => {
                                         <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Matching Items</span>
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
                                             {suggestions.products.map(prod => {
-                                                const prodImg = prod.images?.[0] ? (prod.images[0].startsWith('http') ? prod.images[0] : `${(import.meta.env.VITE_API_URL || '').replace(/\/api$/, '')}${prod.images[0].startsWith('/') ? '' : '/'}${prod.images[0]}`) : '/smartshop-logo.png';
+                                                const prodImg = (() => {
+                                                    const img = prod.images?.[0];
+                                                    const placeholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%2316162a'/%3E%3Ctext x='50%25' y='55%25' font-family='Arial' font-size='16' fill='%23e94560' text-anchor='middle'%3E👟%3C/text%3E%3C/svg%3E";
+                                                    if (!img || typeof img !== 'string' || img.trim() === '') return placeholder;
+                                                    if (img.startsWith('http') || img.startsWith('data:')) return img;
+                                                    let path = img;
+                                                    if (!path.startsWith('/uploads/') && !path.startsWith('uploads/')) {
+                                                        path = '/uploads/' + (path.startsWith('/') ? path.slice(1) : path);
+                                                    } else if (path.startsWith('uploads/')) {
+                                                        path = '/' + path;
+                                                    }
+                                                    const baseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/api$/, '');
+                                                    return `${baseUrl}${path}`;
+                                                })();
                                                 return (
                                                     <Link 
                                                         key={prod._id} 
