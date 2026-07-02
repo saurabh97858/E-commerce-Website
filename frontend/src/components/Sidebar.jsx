@@ -8,9 +8,7 @@ const Sidebar = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const [isMobileOpen, setIsMobileOpen] = useState(false);
-    const [isCollapsed, setIsCollapsed] = useState(() => {
-        return localStorage.getItem('sidebar-collapsed') === 'true';
-    });
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     const activeCategory = searchParams.get('category') || '';
     const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') || '');
@@ -126,23 +124,6 @@ const Sidebar = () => {
 
     return (
         <>
-            {/* ─── Desktop: Floating Trigger Button (shown only when collapsed) ─── */}
-            {isCollapsed && (
-                <button
-                    className="sidebar-floating-trigger-btn"
-                    onClick={toggleCollapse}
-                    aria-label="Open filters sidebar"
-                    title="Open Filters"
-                >
-                    <FaSlidersH className="floating-trigger-icon" />
-                    <span className="floating-trigger-text">FILTERS</span>
-                    {activeFilterCount > 0 && (
-                        <span className="floating-trigger-badge">{activeFilterCount}</span>
-                    )}
-                    <FaChevronRight className="floating-trigger-chevron" />
-                </button>
-            )}
-
             {/* ─── Mobile: Floating FAB Button ─── */}
             <button
                 className="sidebar-mobile-toggle"
@@ -150,7 +131,6 @@ const Sidebar = () => {
                 aria-label="Open filters"
             >
                 <FaFilter />
-                <span>Filters</span>
                 {activeFilterCount > 0 && (
                     <span className="mobile-filter-badge">{activeFilterCount}</span>
                 )}
@@ -173,23 +153,11 @@ const Sidebar = () => {
                 {/* ── Header ── */}
                 <div className="sidebar-header">
                     <div className="sidebar-title">
-                        <FaSlidersH className="sidebar-title-icon" />
-                        <span>Filters</span>
+                        <FaSlidersH className="sidebar-title-icon" style={{ fontSize: '18px' }} />
                         {activeFilterCount > 0 && (
                             <span className="sidebar-active-badge">{activeFilterCount}</span>
                         )}
                     </div>
-
-                    {/* Desktop collapse button */}
-                    <button
-                        type="button"
-                        className="sidebar-desktop-collapse-btn"
-                        onClick={toggleCollapse}
-                        title="Collapse Sidebar"
-                        aria-label="Collapse Sidebar"
-                    >
-                        <FaChevronLeft />
-                    </button>
 
                     {/* Mobile close button */}
                     <button

@@ -4,6 +4,7 @@ import API from '../api/axios';
 import Sidebar from '../components/Sidebar';
 import ProductCard from '../components/ProductCard';
 import { FaSearch, FaSort, FaTimes } from 'react-icons/fa';
+import { HeroCarousel } from '../components/HeroCarousel';
 
 const SORT_OPTIONS = [
     { value: '', label: 'Default' },
@@ -125,62 +126,47 @@ const Products = () => {
         <div className="main-layout">
             <Sidebar />
             <div className="content-area">
-                {/* Page Header */}
-                <div className="products-page-header">
-                    <div className="products-header-left">
-                        <h1 className="products-page-title">
-                            {activeSearch ? `Search: "${activeSearch}"` : 'All Products'}
-                        </h1>
+                {/* Section Header */}
+                <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '24px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <h2 className="section-title" style={{ margin: 0 }}>
+                            {activeSearch ? `Search Results: "${activeSearch}"` : 'All Products'}
+                        </h2>
                         {!loading && (
-                            <span className="section-count">
-                                {products.length} {products.length === 1 ? 'product' : 'products'}
-                                {hasMore ? '+' : ''}
+                            <span className="section-count" style={{
+                                fontSize: '11.5px',
+                                background: 'rgba(255, 255, 255, 0.05)',
+                                padding: '4px 10px',
+                                borderRadius: '12px',
+                                border: '1px solid var(--border)',
+                                color: 'var(--text-secondary)'
+                            }}>
+                                {products.length} product{products.length !== 1 ? 's' : ''}
                             </span>
                         )}
                     </div>
-
-                    {/* Search + Sort Controls */}
-                    <div className="products-controls">
-                        <form className="products-search-form" onSubmit={handleSearchSubmit}>
-                            <div className="products-search-input-wrapper">
-                                <FaSearch className="products-search-icon" />
-                                <input
-                                    type="text"
-                                    placeholder="Search products..."
-                                    value={localSearch}
-                                    onChange={(e) => setLocalSearch(e.target.value)}
-                                    className="products-search-input"
-                                    aria-label="Search products"
-                                />
-                                {localSearch && (
-                                    <button
-                                        type="button"
-                                        className="products-search-clear"
-                                        onClick={clearSearch}
-                                        aria-label="Clear search"
-                                    >
-                                        <FaTimes />
-                                    </button>
-                                )}
-                            </div>
-                            <button type="submit" className="products-search-btn">
-                                <FaSearch />
-                            </button>
-                        </form>
-
-                        <div className="products-sort-wrapper">
-                            <FaSort className="sort-icon" />
-                            <select
-                                value={sort}
-                                onChange={(e) => setSort(e.target.value)}
-                                className="products-sort-select"
-                                aria-label="Sort products"
-                            >
-                                {SORT_OPTIONS.map((opt) => (
-                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                                ))}
-                            </select>
-                        </div>
+                    
+                    <div className="products-sort-wrapper" style={{ margin: 0 }}>
+                        <select
+                            value={sort}
+                            onChange={(e) => setSort(e.target.value)}
+                            className="products-sort-select"
+                            aria-label="Sort products"
+                            style={{
+                                background: 'var(--bg-secondary)',
+                                border: '1px solid var(--border)',
+                                color: 'var(--text-primary)',
+                                padding: '6px 12px',
+                                borderRadius: 'var(--radius-sm)',
+                                fontSize: '13px',
+                                outline: 'none',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            {SORT_OPTIONS.map((opt) => (
+                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            ))}
+                        </select>
                     </div>
                 </div>
 

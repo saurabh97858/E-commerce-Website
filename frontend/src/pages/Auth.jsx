@@ -31,6 +31,28 @@ const Auth = () => {
         setSuccess('');
     }, [location.pathname, searchParams]);
 
+    /* Auto-fetch City from PIN Code in Registration */
+    useEffect(() => {
+        const fetchCity = async () => {
+            if (registerData.pincode && registerData.pincode.length === 6) {
+                try {
+                    const response = await fetch(`https://api.postalpincode.in/pincode/${registerData.pincode}`);
+                    const data = await response.json();
+                    if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice) {
+                        const postOffice = data[0].PostOffice[0];
+                        setRegisterData(prev => ({
+                            ...prev,
+                            city: postOffice.District || postOffice.Division || ''
+                        }));
+                    }
+                } catch (error) {
+                    console.error("Error fetching registration PIN details:", error);
+                }
+            }
+        };
+        fetchCity();
+    }, [registerData.pincode]);
+
     const handleTabChange = (targetIsLogin) => {
         setIsLogin(targetIsLogin);
         setError('');

@@ -66,6 +66,8 @@ const Chatbot = () => {
     const { addToCart } = useCart();
     const [isOpen, setIsOpen] = useState(false);
     const [message, setMessage] = useState('');
+    const [sessionId, setSessionId] = useState('');
+    const [handoffActive, setHandoffActive] = useState(false);
     
     // Welcome message helper based on auth state
     const getWelcomeMessage = () => {
@@ -85,15 +87,52 @@ const Chatbot = () => {
     const [addedProductId, setAddedProductId] = useState(null); // Track click visual feedback
     const chatEndRef = useRef(null);
 
-    // Sync welcome message if user changes (log in / log out)
+    // Sync welcome message and fetch session history from MongoDB on mount/auth changes
     useEffect(() => {
-        setMessages(prev => {
-            const copy = [...prev];
-            if (copy[0] && copy[0].isWelcome) {
-                copy[0].text = getWelcomeMessage();
+        // 1. Get or create sessionId
+        let sId = localStorage.getItem('chatbot_session_id');
+        if (!sId) {
+            sId = 'ss_sess_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            localStorage.setItem('chatbot_session_id', sId);
+        }
+        setSessionId(sId);
+
+        // 2. Fetch history from backend
+        const loadHistory = async () => {
+            try {
+                const { data } = await API.get(`/chatbot/history?sessionId=${sId}`);
+                if (data && data.messages && data.messages.length > 0) {
+                    const mapped = data.messages.map(m => {
+                        const userInitial = user ? user.name.charAt(0).toUpperCase() : 'U';
+                        return {
+                            sender: m.sender,
+                            text: m.text,
+                            products: m.products || [],
+                            orders: m.orders || [],
+                            initial: m.sender === 'user' ? userInitial : undefined,
+                            ticketId: m.ticketId,
+                            action: m.action
+                        };
+                    });
+                    setMessages(mapped);
+                    setHandoffActive(data.handoff || false);
+                } else {
+                    setMessages([
+                        {
+                            sender: 'bot',
+                            text: getWelcomeMessage(),
+                            products: [],
+                            isWelcome: true
+                        }
+                    ]);
+                    setHandoffActive(false);
+                }
+            } catch (err) {
+                console.error("Error loading chat history:", err);
             }
-            return copy;
-        });
+        };
+
+        loadHistory();
     }, [user]);
 
     const scrollToBottom = () => {
@@ -113,7 +152,7 @@ const Chatbot = () => {
         // User avatar initials
         const userInitial = user ? user.name.charAt(0).toUpperCase() : 'U';
 
-        // Add user message
+        // Add user message to state
         const newMessages = [...messages, { 
             sender: 'user', 
             text: queryText, 
@@ -153,12 +192,19 @@ const Chatbot = () => {
         }
 
         try {
-            const { data } = await API.post('/chatbot', { message: queryText });
+            const { data } = await API.post('/chatbot', { message: queryText, sessionId });
             setMessages(prev => [...prev, {
                 sender: 'bot',
                 text: data.reply,
-                products: data.products || []
+                products: data.products || [],
+                orders: data.orders || [],
+                ticketId: data.ticketId,
+                action: data.action
             }]);
+            
+            if (data.handoff) {
+                setHandoffActive(true);
+            }
         } catch (error) {
             console.error('Chatbot error:', error);
             setMessages(prev => [...prev, {
@@ -177,16 +223,22 @@ const Chatbot = () => {
         }
     };
 
-    const handleResetChat = () => {
+    const handleResetChat = async () => {
         if (window.confirm("Do you want to reset your chat history?")) {
-            setMessages([
-                {
-                    sender: 'bot',
-                    text: getWelcomeMessage(),
-                    products: [],
-                    isWelcome: true
-                }
-            ]);
+            try {
+                await API.post('/chatbot/clear', { sessionId });
+                setMessages([
+                    {
+                        sender: 'bot',
+                        text: getWelcomeMessage(),
+                        products: [],
+                        isWelcome: true
+                    }
+                ]);
+                setHandoffActive(false);
+            } catch (err) {
+                console.error("Failed to clear history on server:", err);
+            }
         }
     };
 
@@ -217,14 +269,16 @@ const Chatbot = () => {
     return (
         <div className="chatbot-container">
             {/* Floating Chat Action Button */}
-            <button 
-                className={`chatbot-launcher-btn ${isOpen ? 'active' : ''}`} 
-                onClick={() => setIsOpen(!isOpen)}
-                aria-label="Open support chat"
-            >
-                {isOpen ? <FaTimes /> : <FaComments />}
-                {!isOpen && <span className="chatbot-launcher-ping" />}
-            </button>
+            {!isOpen && (
+                <button 
+                    className="chatbot-launcher-btn" 
+                    onClick={() => setIsOpen(true)}
+                    aria-label="Open support chat"
+                >
+                    <FaComments />
+                    <span className="chatbot-launcher-ping" />
+                </button>
+            )}
 
             {/* Chat Dialog Box */}
             <div className={`chatbot-dialog ${isOpen ? 'chatbot-open' : ''}`}>
@@ -238,7 +292,7 @@ const Chatbot = () => {
                             <h4 style={{ margin: 0, color: 'white', fontSize: '14px', fontWeight: '700' }}>SoleStreet Patna AI</h4>
                             <span style={{ fontSize: '11px', color: 'var(--success)', display: 'flex', alignItems: 'center', gap: '4px' }}>
                                 <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--success)', display: 'inline-block' }} />
-                                Gemini Active
+                                {handoffActive ? 'Support Handoff' : 'Gemini Active'}
                             </span>
                         </div>
                     </div>
@@ -261,6 +315,45 @@ const Chatbot = () => {
                     </div>
                 </div>
 
+                {/* Handoff Banner */}
+                {handoffActive && (
+                    <div style={{
+                        padding: '10px 16px',
+                        background: 'rgba(235, 94, 40, 0.15)',
+                        borderBottom: '1px solid rgba(235, 94, 40, 0.3)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '6px',
+                        textAlign: 'center'
+                    }}>
+                        <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--accent)' }}>
+                            🎧 Support Agent Requested
+                        </span>
+                        <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                            Our support staff has been notified. You can also contact us directly:
+                        </span>
+                        <a 
+                            href="mailto:support@solestreetpatna.com?subject=Support%20Request"
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                textDecoration: 'none',
+                                background: 'var(--accent)',
+                                color: 'white',
+                                fontSize: '11px',
+                                fontWeight: '700',
+                                padding: '6px 12px',
+                                borderRadius: '4px',
+                                marginTop: '4px'
+                            }}
+                        >
+                            ✉️ Email Support
+                        </a>
+                    </div>
+                )}
+
                 {/* Messages Body */}
                 <div className="chatbot-body">
                     {messages.map((msg, idx) => (
@@ -273,6 +366,24 @@ const Chatbot = () => {
                             <div className="chat-bubble-content" style={{ width: '100%' }}>
                                 <div className={`chat-bubble ${msg.sender === 'user' ? 'user-bubble' : 'bot-bubble'}`}>
                                     {renderFormattedText(msg.text)}
+
+                                    {/* Support Ticket Badge */}
+                                    {msg.ticketId && (
+                                        <div style={{
+                                            marginTop: '10px',
+                                            padding: '10px',
+                                            borderRadius: '8px',
+                                            border: '1px solid rgba(255,255,255,0.1)',
+                                            background: 'rgba(255, 255, 255, 0.05)',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: '4px'
+                                        }}>
+                                            <span style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>Support Ticket Created</span>
+                                            <span style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--success)' }}>🎫 {msg.ticketId}</span>
+                                            <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Our team will review your complaint and respond via email within 24 hours.</span>
+                                        </div>
+                                    )}
 
                                     {/* Action links inside welcome message bubble */}
                                     {msg.isWelcome && (
@@ -307,11 +418,11 @@ const Chatbot = () => {
                                                     <img 
                                                         src={
                                                             (() => {
-                                                                const img = prod.images?.[0];
-                                                                if (!img || typeof img !== 'string' || img.trim() === '') return '/placeholder.png';
-                                                                if (img.startsWith('http') || img.startsWith('data:')) return img;
-                                                                const baseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/api$/, '');
-                                                                return `${baseUrl}${img.startsWith('/') ? '' : '/'}${img}`;
+                                                                 const img = prod.images?.[0];
+                                                                 if (!img || typeof img !== 'string' || img.trim() === '') return '/placeholder.png';
+                                                                 if (img.startsWith('http') || img.startsWith('data:')) return img;
+                                                                 const baseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/api$/, '');
+                                                                 return `${baseUrl}${img.startsWith('/') ? '' : '/'}${img}`;
                                                             })()
                                                         } 
                                                         alt={prod.name} 
@@ -333,6 +444,86 @@ const Chatbot = () => {
                                                     {addedProductId === prod._id ? <FaCheck /> : <FaShoppingBag />}
                                                 </button>
                                             </Link>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Render in-chat orders list for tracking / cancel */}
+                                {msg.orders && msg.orders.length > 0 && (
+                                    <div className="chat-orders-container" style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '10px',
+                                        marginTop: '12px',
+                                        width: '100%'
+                                    }}>
+                                        {msg.orders.map((ord) => (
+                                            <div key={ord._id} className="chat-order-card" style={{
+                                                background: 'rgba(255, 255, 255, 0.03)',
+                                                border: '1px solid rgba(255, 255, 255, 0.08)',
+                                                borderRadius: '8px',
+                                                padding: '12px',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: '8px'
+                                            }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-primary)' }}>
+                                                        Order #{ord._id.slice(-6).toUpperCase()}
+                                                    </span>
+                                                    <span style={{
+                                                        fontSize: '11px',
+                                                        fontWeight: '700',
+                                                        padding: '3px 8px',
+                                                        borderRadius: '12px',
+                                                        background: ord.status === 'Cancelled' ? 'rgba(235, 94, 40, 0.2)' : ord.status === 'Delivered' ? 'rgba(46, 196, 182, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+                                                        color: ord.status === 'Cancelled' ? 'var(--accent)' : ord.status === 'Delivered' ? 'var(--success)' : 'var(--text-secondary)'
+                                                    }}>
+                                                        {ord.status}
+                                                    </span>
+                                                </div>
+                                                <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                                                    {ord.items.map((item, i) => (
+                                                        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', margin: '2px 0' }}>
+                                                            <span>{item.name} (x{item.quantity}) {item.size && `[Size ${item.size}]`}</span>
+                                                            <span>₹{item.price * item.quantity}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px' }}>
+                                                    <span style={{ color: 'var(--text-secondary)' }}>Total: <strong>₹{ord.totalAmount}</strong></span>
+                                                    {ord.status !== 'Cancelled' && ord.status !== 'Delivered' && (
+                                                        <button
+                                                            onClick={() => {
+                                                                if (window.confirm(`Are you sure you want to cancel Order #${ord._id.slice(-6).toUpperCase()}?`)) {
+                                                                    handleSendMessage(`Cancel order ${ord._id}`);
+                                                                }
+                                                            }}
+                                                            style={{
+                                                                background: 'rgba(235, 94, 40, 0.15)',
+                                                                color: 'var(--accent)',
+                                                                border: '1px solid var(--accent)',
+                                                                borderRadius: '4px',
+                                                                fontSize: '11px',
+                                                                fontWeight: '700',
+                                                                padding: '4px 10px',
+                                                                cursor: 'pointer',
+                                                                transition: 'all 0.2s'
+                                                            }}
+                                                            onMouseOver={(e) => {
+                                                                e.target.style.background = 'var(--accent)';
+                                                                e.target.style.color = 'white';
+                                                            }}
+                                                            onMouseOut={(e) => {
+                                                                e.target.style.background = 'rgba(235, 94, 40, 0.15)';
+                                                                e.target.style.color = 'var(--accent)';
+                                                            }}
+                                                        >
+                                                            Cancel Order
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
                                         ))}
                                     </div>
                                 )}

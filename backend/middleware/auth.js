@@ -19,4 +19,23 @@ const auth = async (req, res, next) => {
     }
 };
 
+const optionalAuth = async (req, res, next) => {
+    try {
+        const token = req.header('Authorization')?.replace('Bearer ', '');
+        if (token) {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const user = await User.findById(decoded.id).select('-password');
+            if (user) {
+                req.user = user;
+            }
+        }
+        next();
+    } catch (error) {
+        // Proceed without error if token is expired or invalid
+        next();
+    }
+};
+
+auth.optional = optionalAuth;
+
 module.exports = auth;

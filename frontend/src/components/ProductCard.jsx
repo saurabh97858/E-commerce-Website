@@ -100,14 +100,14 @@ const ProductCard = ({ product }) => {
                         <span className="rating-count">({numReviews})</span>
                     </div>
                 )}
-                <div className="product-card-price-container" style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '12px' }}>
+                <div className="product-card-price-container" style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '8px' }}>
                     <div className="product-card-price" style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: 0 }}>
-                        <span className="price-value" style={{ color: 'var(--accent)', fontWeight: '700', fontSize: '18px' }}>₹{product.price?.toLocaleString('en-IN')}</span>
+                        <span className="price-value" style={{ color: 'var(--accent)', fontWeight: '700', fontSize: '15px' }}>₹{product.price?.toLocaleString('en-IN')}</span>
                         {product.stock > 0 && (
-                            <span className="original-price-value" style={{ color: 'var(--text-muted)', textDecoration: 'line-through', fontSize: '13px', fontWeight: '400' }}>₹{originalPrice.toLocaleString('en-IN')}</span>
+                            <span className="original-price-value" style={{ color: 'var(--text-muted)', textDecoration: 'line-through', fontSize: '11.5px', fontWeight: '400' }}>₹{originalPrice.toLocaleString('en-IN')}</span>
                         )}
                     </div>
-                    <Link to={`/product/${product._id}`} className="view-link" style={{ alignSelf: 'flex-start', fontSize: '12px', fontWeight: '600' }}>View details</Link>
+                    <Link to={`/product/${product._id}`} className="view-link" style={{ alignSelf: 'flex-start', fontSize: '11px', fontWeight: '600', padding: '3px 10px' }}>View details</Link>
                 </div>
                 {product.stock > 0 && (
                     <button

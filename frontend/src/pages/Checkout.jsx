@@ -67,6 +67,29 @@ const Checkout = () => {
         }
     }, [user]);
 
+    /* Auto-fetch City and State from PIN Code */
+    useEffect(() => {
+        const fetchCityState = async () => {
+            if (address.pincode && address.pincode.length === 6) {
+                try {
+                    const response = await fetch(`https://api.postalpincode.in/pincode/${address.pincode}`);
+                    const data = await response.json();
+                    if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice) {
+                        const postOffice = data[0].PostOffice[0];
+                        setAddress(prev => ({
+                            ...prev,
+                            city: postOffice.District || postOffice.Division || '',
+                            state: postOffice.State || ''
+                        }));
+                    }
+                } catch (error) {
+                    console.error("Error fetching PIN details:", error);
+                }
+            }
+        };
+        fetchCityState();
+    }, [address.pincode]);
+
     // Price Calculations
     const subtotal = cart.items ? cart.items.reduce((s, i) => s + (i.product?.price || 0) * i.quantity, 0) : 0;
     

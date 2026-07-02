@@ -345,7 +345,7 @@ const ProductDetail = () => {
                                 <div className="form-group">
                                     <label>Your Review</label>
                                     <textarea
-                                        rows="4"
+                                        rows="2"
                                         placeholder="What did you think of this product?"
                                         value={reviewText}
                                         onChange={(e) => setReviewText(e.target.value)}

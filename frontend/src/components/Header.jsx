@@ -1,16 +1,64 @@
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaShoppingCart, FaSearch, FaHeart, FaUser, FaChevronDown, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa';
+import API from '../api/axios';
 
 const Header = () => {
     const { user, logout } = useAuth();
     const { cartItemCount } = useCart();
     const navigate = useNavigate();
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const activeCategory = searchParams.get('category') || '';
+    const activeSearch = searchParams.get('search') || '';
+
     const [search, setSearch] = useState('');
     const [navOpen, setNavOpen] = useState(false);
     const [profileOpen, setProfileOpen] = useState(false);
+    const [categories, setCategories] = useState([]);
+    const [suggestions, setSuggestions] = useState({ products: [], categories: [] });
+    const [showSuggestions, setShowSuggestions] = useState(false);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const { data } = await API.get('/categories');
+                setCategories(data);
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        };
+        fetchCategories();
+    }, []);
+
+    // Debounced search suggestion fetcher
+    useEffect(() => {
+        if (search.trim().length < 2) {
+            setSuggestions({ products: [], categories: [] });
+            return;
+        }
+        const delayDebounce = setTimeout(async () => {
+            try {
+                // Fetch up to 5 matching products
+                const { data } = await API.get(`/products?search=${search}&limit=5`);
+                // Filter matching categories locally
+                const matchedCats = categories.filter(c => 
+                    c.name.toLowerCase().includes(search.toLowerCase())
+                );
+                
+                setSuggestions({
+                    products: data.products || [],
+                    categories: matchedCats
+                });
+            } catch (err) {
+                console.error('Error fetching suggestions:', err);
+            }
+        }, 250);
+
+        return () => clearTimeout(delayDebounce);
+    }, [search, categories]);
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -34,15 +82,137 @@ const Header = () => {
                             <span className="logo-sub">Patna</span>
                         </div>
                     </Link>
-                    <form className="search-form" onSubmit={handleSearch}>
+                    <form className="search-form" onSubmit={handleSearch} style={{ position: 'relative' }}>
                         <input
                             type="text"
-                            placeholder="Search for premium shoes, sneakers, formal boots..."
+                            placeholder="Search for products, brands, categories..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
+                            onFocus={() => setShowSuggestions(true)}
+                            onBlur={() => setTimeout(() => setShowSuggestions(false), 250)}
                             className="search-input"
                         />
                         <button type="submit" className="search-btn"><FaSearch /> SEARCH</button>
+                        
+                        {/* Auto-suggestions Dropdown */}
+                        {showSuggestions && search.trim().length >= 2 && (suggestions.products?.length > 0 || suggestions.categories?.length > 0) && (
+                            <div className="search-suggestions-dropdown" style={{
+                                position: 'absolute',
+                                top: '100%',
+                                left: 0,
+                                width: '100%',
+                                background: 'rgba(18, 18, 26, 0.98)',
+                                backdropFilter: 'blur(20px)',
+                                border: '1px solid var(--border)',
+                                borderRadius: 'var(--radius-md)',
+                                marginTop: '8px',
+                                boxShadow: '0 10px 30px rgba(0,0,0,0.6)',
+                                zIndex: 9999,
+                                overflow: 'hidden',
+                                textAlign: 'left'
+                            }}>
+                                {/* Categories Suggestions */}
+                                {suggestions.categories?.length > 0 && (
+                                    <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border)' }}>
+                                        <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Suggested Categories</span>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '6px' }}>
+                                            {suggestions.categories.map(cat => (
+                                                <Link 
+                                                    key={cat._id}
+                                                    to={`/?category=${cat._id}`} 
+                                                    onClick={() => { setShowSuggestions(false); setSearch(''); }}
+                                                    style={{
+                                                        fontSize: '11px',
+                                                        background: 'rgba(255, 255, 255, 0.04)',
+                                                        padding: '4px 10px',
+                                                        borderRadius: '12px',
+                                                        border: '1px solid var(--border)',
+                                                        color: 'var(--text-primary)',
+                                                        textDecoration: 'none',
+                                                        transition: 'all 0.2s'
+                                                    }}
+                                                    onMouseEnter={(e) => { e.target.style.borderColor = 'var(--primary)'; e.target.style.background = 'rgba(224, 30, 90, 0.05)'; }}
+                                                    onMouseLeave={(e) => { e.target.style.borderColor = 'var(--border)'; e.target.style.background = 'rgba(255, 255, 255, 0.04)'; }}
+                                                >
+                                                    {cat.name}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Category Recommendations */}
+                                <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--border)' }}>
+                                    <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Category Recommendations</span>
+                                    <div style={{ marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        {categories.slice(0, 3).map(cat => (
+                                            <Link
+                                                key={cat._id}
+                                                to={`/?search=${search}&category=${cat._id}`}
+                                                onClick={() => { setShowSuggestions(false); }}
+                                                style={{
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center',
+                                                    fontSize: '12px',
+                                                    color: 'var(--text-secondary)',
+                                                    textDecoration: 'none',
+                                                    padding: '6px 8px',
+                                                    borderRadius: 'var(--radius-sm)',
+                                                    transition: 'all 0.2s'
+                                                }}
+                                                onMouseEnter={(e) => { e.target.style.background = 'var(--bg-glass-hover)'; e.target.style.color = 'var(--text-primary)'; }}
+                                                onMouseLeave={(e) => { e.target.style.background = 'transparent'; e.target.style.color = 'var(--text-secondary)'; }}
+                                            >
+                                                <span>Search <strong>"{search}"</strong> in {cat.name}</span>
+                                                <span style={{ fontSize: '10px', color: 'var(--primary)' }}>Go →</span>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Products Suggestions */}
+                                {suggestions.products?.length > 0 && (
+                                    <div style={{ padding: '8px 12px' }}>
+                                        <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Matching Items</span>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
+                                            {suggestions.products.map(prod => {
+                                                const prodImg = prod.images?.[0] ? (prod.images[0].startsWith('http') ? prod.images[0] : `${(import.meta.env.VITE_API_URL || '').replace(/\/api$/, '')}${prod.images[0].startsWith('/') ? '' : '/'}${prod.images[0]}`) : '/smartshop-logo.png';
+                                                return (
+                                                    <Link 
+                                                        key={prod._id} 
+                                                        to={`/product/${prod._id}`}
+                                                        onClick={() => { setShowSuggestions(false); setSearch(''); }}
+                                                        style={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '10px',
+                                                            textDecoration: 'none',
+                                                            padding: '6px',
+                                                            borderRadius: 'var(--radius-sm)',
+                                                            transition: 'all 0.2s'
+                                                        }}
+                                                        onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-glass-hover)'; }}
+                                                        onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                                                    >
+                                                        <img 
+                                                            src={prodImg} 
+                                                            alt={prod.name} 
+                                                            style={{ width: '32px', height: '32px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border)' }} 
+                                                            onError={(e) => e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Crect width='30' height='30' fill='%23222'/%3E%3C/svg%3E"}
+                                                        />
+                                                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                                                            <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{prod.name}</span>
+                                                            <span style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: '700' }}>₹{prod.price?.toLocaleString('en-IN')}</span>
+                                                        </div>
+                                                    </Link>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </form>
                     
                     <div className="header-actions">
@@ -128,17 +298,31 @@ const Header = () => {
                     {navOpen ? <FaTimes /> : <FaBars />}
                 </button>
                 <nav className={`nav-bar ${navOpen ? 'nav-open' : ''}`}>
-                    <NavLink to="/" className="nav-link" end onClick={() => setNavOpen(false)}>Home</NavLink>
-                    <NavLink to="/products" className="nav-link" onClick={() => setNavOpen(false)}>Products</NavLink>
-                    <NavLink to="/feedback" className="nav-link" onClick={() => setNavOpen(false)}>Feedback</NavLink>
-                    <NavLink to="/contact" className="nav-link" onClick={() => setNavOpen(false)}>Contact Us</NavLink>
+                    <Link to="/" className={`nav-link${location.pathname === '/' && !activeCategory && !activeSearch ? ' active' : ''}`} onClick={() => setNavOpen(false)}>Home</Link>
+                    <Link to="/products" className={`nav-link${location.pathname === '/products' ? ' active' : ''}`} onClick={() => setNavOpen(false)}>Products</Link>
+
+                    {categories.map((cat) => {
+                        const isCatActive = location.pathname === '/' && activeCategory === cat._id;
+                        return (
+                            <Link
+                                key={cat._id}
+                                to={`/?category=${cat._id}`}
+                                className={`nav-link${isCatActive ? ' active' : ''}`}
+                                onClick={() => setNavOpen(false)}
+                            >
+                                {cat.name}
+                            </Link>
+                        );
+                    })}
+
+                    <Link to="/contact" className={`nav-link${location.pathname === '/contact' ? ' active' : ''}`} onClick={() => setNavOpen(false)}>Contact Us</Link>
                     
                     {user && (user.role === 'admin' || user.role === 'super_admin') && (
                         <>
                             <span className="nav-divider">|</span>
-                            <NavLink to="/admin" className="nav-link nav-link-admin-highlight" onClick={() => setNavOpen(false)}>
+                            <Link to="/admin" className="nav-link nav-link-admin-highlight" onClick={() => setNavOpen(false)}>
                                 <span className="admin-badge-dot"></span> Admin Panel
-                            </NavLink>
+                            </Link>
                         </>
                     )}
                 </nav>

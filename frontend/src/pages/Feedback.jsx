@@ -128,19 +128,8 @@ const Feedback = () => {
     const sentiment = getSentimentDetails();
 
     return (
-        <div className="pro-page pro-page-narrow">
-            {/* Page Header */}
-            <div className="pro-page-header">
-                <div className="pro-page-header-left">
-                    <FaCommentAlt className="pro-page-icon" />
-                    <div>
-                        <h1 className="pro-page-title">Share Your Feedback</h1>
-                        <p className="pro-page-subtitle">Help SoleStreet Patna serve you better every day</p>
-                    </div>
-                </div>
-            </div>
-
-            <div className="feedback-container">
+        <div className="pro-page pro-page-narrow-feedback">
+            <div className="feedback-container" style={{ marginTop: '20px' }}>
                 {/* Visual info and Live Sentiment Card */}
                 <div className="feedback-sidebar-info">
                     <div className="feedback-intro-card">

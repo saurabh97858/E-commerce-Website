@@ -73,7 +73,7 @@ const Contact = () => {
     };
 
     return (
-        <div className="pro-page">
+        <div className="pro-page pro-page-narrow-contact">
             {/* Page Header */}
             <div className="pro-page-header">
                 <div className="pro-page-header-left">
@@ -147,33 +147,6 @@ const Contact = () => {
                         </div>
                     </div>
 
-                    {/* FAQ Accordion widget */}
-                    <div className="faq-accordion-card">
-                        <div className="faq-card-header">
-                            <FaQuestionCircle className="faq-header-icon" />
-                            <h3>Frequently Asked Questions</h3>
-                        </div>
-                        <div className="faq-items-list">
-                            {FAQ_ITEMS.map((faq) => {
-                                const isOpen = activeFaq === faq.id;
-                                return (
-                                    <div key={faq.id} className={`faq-accordion-item${isOpen ? ' open' : ''}`}>
-                                        <button
-                                            type="button"
-                                            className="faq-question-btn"
-                                            onClick={() => toggleFaq(faq.id)}
-                                            aria-expanded={isOpen}
-                                        >
-                                            <span>{faq.question}</span>
-                                            <FaChevronDown className="faq-chevron" />
-                                        </button>
-                                        <div className="faq-answer-wrapper">
-                                            <p className="faq-answer-content">{faq.answer}</p>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
                     </div>
                 </div>
 
