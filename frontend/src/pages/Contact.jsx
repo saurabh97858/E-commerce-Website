@@ -146,8 +146,6 @@ const Contact = () => {
                             </div>
                         </div>
                     </div>
-
-                    </div>
                 </div>
 
                 {/* Right Side: Form Card */}
