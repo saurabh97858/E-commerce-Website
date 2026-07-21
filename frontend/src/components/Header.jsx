@@ -75,6 +75,9 @@ const Header = () => {
             {/* Top Bar: Logo + Search + Actions */}
             <div className="header-inner">
                 <div className="header-top">
+                    <button className="nav-hamburger" onClick={() => setNavOpen(!navOpen)} aria-label="Toggle menu">
+                        {navOpen ? <FaTimes /> : <FaBars />}
+                    </button>
                     <Link to="/" className="logo">
                         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 8, filter: 'drop-shadow(0 0 6px var(--primary))' }}>
                             <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
@@ -311,9 +314,6 @@ const Header = () => {
  
             {/* Navigation Bar: centered links */}
             <div className="nav-bar-wrapper">
-                <button className="nav-hamburger" onClick={() => setNavOpen(!navOpen)} aria-label="Toggle menu">
-                    {navOpen ? <FaTimes /> : <FaBars />}
-                </button>
                 <nav className={`nav-bar ${navOpen ? 'nav-open' : ''}`}>
                     <Link to="/" className={`nav-link${location.pathname === '/' && !activeCategory && !activeSearch ? ' active' : ''}`} onClick={() => setNavOpen(false)}>Home</Link>
                     <Link to="/products" className={`nav-link${location.pathname === '/products' ? ' active' : ''}`} onClick={() => setNavOpen(false)}>Products</Link>

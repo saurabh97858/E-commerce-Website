@@ -5,6 +5,7 @@ const path = require('path');
 const { getCategories, createCategory, updateCategory, deleteCategory } = require('../controllers/categoryController');
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
+const { optimizeUploadedImages } = require('../middleware/imageOptimizer');
 
 const fs = require('fs');
 
@@ -27,8 +28,8 @@ const upload = multer({
 });
 
 router.get('/', getCategories);
-router.post('/', auth, admin, upload.single('image'), createCategory);
-router.put('/:id', auth, admin, upload.single('image'), updateCategory);
+router.post('/', auth, admin, upload.single('image'), optimizeUploadedImages, createCategory);
+router.put('/:id', auth, admin, upload.single('image'), optimizeUploadedImages, updateCategory);
 router.delete('/:id', auth, admin, deleteCategory);
 
 module.exports = router;

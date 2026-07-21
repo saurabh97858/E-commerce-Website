@@ -5,6 +5,7 @@ const path = require('path');
 const { getProducts, getProduct, createProduct, updateProduct, deleteProduct, submitProductReview } = require('../controllers/productController');
 const auth = require('../middleware/auth');
 const admin = require('../middleware/admin');
+const { optimizeUploadedImages } = require('../middleware/imageOptimizer');
 
 const fs = require('fs');
 
@@ -80,7 +81,7 @@ router.get('/:id', getProduct);
  *       201:
  *         description: Product created
  */
-router.post('/', auth, admin, upload.array('images', 5), createProduct);
+router.post('/', auth, admin, upload.array('images', 5), optimizeUploadedImages, createProduct);
 
 /**
  * @swagger
@@ -100,7 +101,7 @@ router.post('/', auth, admin, upload.array('images', 5), createProduct);
  *       200:
  *         description: Product updated
  */
-router.put('/:id', auth, admin, upload.array('images', 5), updateProduct);
+router.put('/:id', auth, admin, upload.array('images', 5), optimizeUploadedImages, updateProduct);
 
 /**
  * @swagger
