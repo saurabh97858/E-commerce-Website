@@ -25,9 +25,6 @@ const StatusTracker = ({ status }) => {
                             {isDone ? <FaCheckCircle /> : <span>{idx + 1}</span>}
                         </div>
                         <span className="tracker-label">{step}</span>
-                        {idx < statusSteps.length - 1 && (
-                            <div className={`tracker-line ${idx < currentIndex ? 'done' : ''}`} />
-                        )}
                     </div>
                 );
             })}

@@ -10111,4 +10111,215 @@ select option {
   }
 }
 
+/* 1. Status Progress Tracker Spacing (Pic 4 Fix) */
+.order-tracker {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  padding: 16px 8px !important;
+  gap: 16px !important;
+  position: relative !important;
+}
+
+.tracker-step {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  flex: 1 !important;
+  text-align: center !important;
+  position: relative !important;
+  z-index: 2 !important;
+  min-width: 60px !important;
+}
+
+.tracker-dot {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  background: var(--bg-secondary) !important;
+  border: 2px solid var(--border) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: var(--text-muted) !important;
+  margin-bottom: 8px !important;
+  transition: all 0.25s ease !important;
+}
+
+.tracker-step.done .tracker-dot {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 10px rgba(224, 30, 90, 0.4) !important;
+}
+
+.tracker-step.active .tracker-dot {
+  background: var(--primary) !important;
+  border-color: #ffffff !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 14px rgba(224, 30, 90, 0.6) !important;
+  transform: scale(1.15) !important;
+}
+
+.tracker-label {
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  color: var(--text-muted) !important;
+  white-space: nowrap !important;
+  letter-spacing: 0.3px !important;
+  margin-top: 4px !important;
+  display: block !important;
+}
+
+.tracker-step.done .tracker-label,
+.tracker-step.active .tracker-label {
+  color: var(--text-primary) !important;
+  font-weight: 700 !important;
+}
+
+/* 2. Auth Page Compact Height (Pic 1 Fix) */
+.auth-page-v2 {
+  min-height: calc(100vh - 80px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 16px 20px !important;
+}
+
+.auth-left-panel {
+  padding: 24px 32px !important;
+}
+
+.auth-right-panel {
+  padding: 20px 28px !important;
+}
+
+.auth-tabs-v2 {
+  margin-bottom: 16px !important;
+}
+
+.auth-form-header {
+  margin-bottom: 14px !important;
+}
+
+.auth-field {
+  margin-bottom: 10px !important;
+}
+
+.auth-input-wrap input {
+  height: 38px !important;
+  font-size: 13px !important;
+}
+
+/* 3. Checkout Assurances & Height Equalizer (Pic 2 Fix) */
+.checkout-assurances-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border);
+}
+
+.assurance-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  color: var(--text-secondary);
+}
+
+.assurance-item svg {
+  color: var(--primary);
+  font-size: 13px;
+}
+
+/* 4. Order Success Compact Box (Pic 3 Fix) */
+.order-success-page-compact {
+  min-height: calc(100vh - 120px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.order-success-card-compact {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+}
+
+.success-check-circle {
+  font-size: 48px;
+  color: var(--success);
+  margin-bottom: 12px;
+}
+
+.success-compact-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.success-compact-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.success-compact-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.btn-primary-compact, .btn-outline-compact {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-primary-compact {
+  background: var(--primary);
+  color: #fff;
+}
+
+.btn-outline-compact {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+/* 5. Mobile Header Actions Alignment */
+@media (max-width: 768px) {
+  .header-actions {
+    gap: 8px !important;
+  }
+
+  .header-action-link {
+    padding: 4px 6px !important;
+  }
+
+  .action-text {
+    display: none !important;
+  }
+}
+
+
 

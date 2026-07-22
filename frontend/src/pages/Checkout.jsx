@@ -6,8 +6,8 @@ import API from '../api/axios';
 import {
     FaCreditCard, FaUniversity, FaShieldAlt, FaArrowLeft,
     FaUser, FaMapMarkerAlt, FaCheckCircle, FaMobileAlt, 
-    FaEnvelope, FaCity, FaHashtag, FaWallet, FaTruck, FaGift, 
-    FaRegCommentAlt
+    FaEnvelope, FaCity, FaHashtag, FaTruck, FaGift, 
+    FaRegCommentAlt, FaUndo, FaAward
 } from 'react-icons/fa';
 
 /* ── Active Promo Codes ── */
@@ -39,7 +39,7 @@ const Checkout = () => {
         address: '', city: '', state: 'Bihar', pincode: '', landmark: ''
     });
 
-    const [shippingMethod, setShippingMethod] = useState('standard'); // 'standard' or 'express'
+    const [shippingMethod, setShippingMethod] = useState('standard');
     const [orderNotes, setOrderNotes] = useState('');
 
     /* Default payment method to Cash on Delivery (COD) for 1-click checkout! */
@@ -67,7 +67,6 @@ const Checkout = () => {
                         mobile:    data.mobile || prev.mobile || ''
                     }));
 
-                    // Check active address in localStorage or default profile address
                     let activeAddress = null;
                     try {
                         const storedAddrs = localStorage.getItem(`addresses_${user._id}`);
@@ -125,18 +124,10 @@ const Checkout = () => {
 
     // Price Calculations
     const subtotal = cart.items ? cart.items.reduce((s, i) => s + (i.product?.price || 0) * i.quantity, 0) : 0;
-    
-    // Shipping: Free standard above 1000, express is always ₹99
     const baseShipping = subtotal >= 1000 ? 0 : 99;
     const shipping = shippingMethod === 'express' ? 99 : baseShipping;
-    
-    // Promo Discount
     const discount = promoApplied ? Math.round(subtotal * promoApplied.discount) : 0;
-    
-    // COD charges
     const codCharges = payment.paymentType === 'Cash on Delivery' ? 25 : 0;
-    
-    // Grand Total
     const grandTotal = subtotal + shipping - discount + codCharges;
 
     /* Promo code logic */
@@ -156,7 +147,6 @@ const Checkout = () => {
     const handlePlaceOrder = async (e) => {
         if (e) e.preventDefault();
         
-        // 1. Validate contact info
         if (!contact.firstName.trim() || !contact.lastName.trim()) {
             setError('Please fill in your first and last name.');
             return;
@@ -170,7 +160,6 @@ const Checkout = () => {
             return;
         }
 
-        // 2. Validate shipping address
         if (!address.address.trim()) {
             setError('Please enter your full street address.');
             return;
@@ -188,7 +177,6 @@ const Checkout = () => {
             return;
         }
 
-        // 3. Validate payment details ONLY if Card is selected!
         if (payment.paymentType === 'Credit Card' || payment.paymentType === 'Debit Card') {
             if (!payment.cardNumber || payment.cardNumber.replace(/\s/g, '').length < 16) {
                 setError('Please enter a valid 16-digit card number.');
@@ -217,10 +205,8 @@ const Checkout = () => {
                 orderNotes
             };
 
-            // Post order to backend
             const { data: order } = await API.post('/orders/place', { shippingAddress });
 
-            // Auto-save this shipping address to the user's profile if logged in
             if (user) {
                 try {
                     await API.put('/auth/profile', {
@@ -234,7 +220,6 @@ const Checkout = () => {
                 }
             }
             
-            // Process payment transaction
             await API.post('/payments/process', {
                 orderId: order._id,
                 paymentType: payment.paymentType,
@@ -268,7 +253,6 @@ const Checkout = () => {
 
     return (
         <div className="checkout-page checkout-page-compact">
-            {/* Page Header */}
             <div className="checkout-page-header">
                 <Link to="/cart" className="checkout-back-link">
                     <FaArrowLeft /> Back to Cart
@@ -411,11 +395,11 @@ const Checkout = () => {
                             </div>
                         </div>
 
-                        {/* SECTION 3: Shipping Method & Order Notes */}
+                        {/* SECTION 3: Shipping Speed */}
                         <div className="checkout-form-panel">
                             <h3 className="panel-heading">
                                 <span className="panel-step-badge">3</span>
-                                <FaTruck /> Delivery Speed & Instructions
+                                <FaTruck /> Delivery Speed & Notes
                             </h3>
                             <div className="panel-grid">
                                 <div className="form-field form-field-full">
@@ -596,7 +580,7 @@ const Checkout = () => {
                     </form>
                 </div>
 
-                {/* ── RIGHT COLUMN: Compact Order Summary Card ── */}
+                {/* ── RIGHT COLUMN: Balanced Order Summary Box ── */}
                 <div className="checkout-summary-col">
                     <div className="checkout-summary-box">
                         <h3 className="checkout-summary-heading">
@@ -713,9 +697,12 @@ const Checkout = () => {
                             </button>
                         </div>
 
-                        <div className="checkout-trust-badges">
-                            <span><FaShieldAlt /> 100% Secure Checkout</span>
-                            <span><FaTruck /> Fast & Safe Delivery</span>
+                        {/* Additional Assurances to balance visual height cleanly */}
+                        <div className="checkout-assurances-list">
+                            <div className="assurance-item"><FaAward /> 100% Original Brand Products</div>
+                            <div className="assurance-item"><FaUndo /> 7-Day Easy Replacement & Return</div>
+                            <div className="assurance-item"><FaShieldAlt /> 256-Bit SSL Encrypted Checkout</div>
+                            <div className="assurance-item"><FaTruck /> Fast Local Dispatch & Tracking</div>
                         </div>
                     </div>
                 </div>
