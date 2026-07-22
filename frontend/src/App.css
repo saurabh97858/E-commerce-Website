@@ -10306,20 +10306,102 @@ select option {
   color: var(--text-primary);
 }
 
-/* 5. Mobile Header Actions Alignment */
-@media (max-width: 768px) {
-  .header-actions {
+/* 5. Mobile Header Actions Alignment & Definitive Mobile Rules */
+@media (max-width: 868px) {
+  .nav-bar-wrapper {
+    position: fixed !important;
+    top: 0 !important;
+    left: -100% !important;
+    width: 280px !important;
+    height: 100vh !important;
+    background: rgba(12, 12, 18, 0.98) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    z-index: 999999 !important;
+    transition: left 0.3s ease-in-out !important;
+    box-shadow: 5px 0 30px rgba(0, 0, 0, 0.8) !important;
+  }
+
+  .nav-bar-wrapper.mobile-nav-active {
+    left: 0 !important;
+  }
+
+  .nav-bar {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 20px 16px !important;
+    height: 100% !important;
+    overflow-y: auto !important;
+  }
+
+  .header-top {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
     gap: 8px !important;
+    padding: 8px 12px !important;
+  }
+
+  .nav-hamburger {
+    display: flex !important;
+    order: 1 !important;
+    padding: 6px 10px !important;
+  }
+
+  .logo {
+    order: 2 !important;
+    margin-right: 0 !important;
+  }
+
+  .header-actions {
+    order: 3 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    margin-left: auto !important;
+  }
+
+  .search-form {
+    order: 4 !important;
+    width: 100% !important;
+    flex: 0 0 100% !important;
+    margin-top: 6px !important;
   }
 
   .header-action-link {
-    padding: 4px 6px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 6px !important;
+    color: var(--text-primary) !important;
   }
 
   .action-text {
     display: none !important;
   }
+
+  /* Product grid strictly 2 items per row on mobile */
+  .product-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+    width: 100% !important;
+    padding: 0 2px !important;
+  }
+
+  .product-card {
+    width: 100% !important;
+  }
+
+  .product-card-image {
+    height: 150px !important;
+    width: 100% !important;
+    object-fit: cover !important;
+  }
 }
+
 
 
 
