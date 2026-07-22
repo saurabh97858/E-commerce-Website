@@ -10003,3 +10003,112 @@ select option {
   }
 }
 
+/* Hide mobile header and quick actions on desktop screen */
+@media (min-width: 869px) {
+  .mobile-nav-header,
+  .mobile-nav-quick-actions {
+    display: none !important;
+  }
+}
+
+/* UNIFIED CART BOX: Single Container with 2 Columns */
+.unified-cart-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 24px;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 30px;
+}
+
+.unified-section-heading {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.unified-cart-items-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.unified-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.unified-cart-summary-col {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+}
+
+.cart-trust-mini {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+}
+
+@media (max-width: 868px) {
+  .unified-cart-box {
+    grid-template-columns: 1fr !important;
+    padding: 14px !important;
+    gap: 16px !important;
+  }
+}
+
+/* CHECKOUT PAGE COMPACT CLEANUP */
+.scroll-area-badge {
+  display: none !important;
+}
+
+.checkout-page-compact .checkout-layout {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.checkout-summary-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  height: fit-content;
+}
+
+.checkout-items-mini-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 240px;
+  overflow-y: auto;
+  margin-bottom: 14px;
+  padding-right: 4px;
+}
+
+@media (max-width: 868px) {
+  .checkout-page-compact .checkout-layout {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+}
+
+

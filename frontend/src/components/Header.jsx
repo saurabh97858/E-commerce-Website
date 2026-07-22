@@ -2,7 +2,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useState, useEffect } from 'react';
-import { FaShoppingCart, FaSearch, FaHeart, FaUser, FaChevronDown, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa';
+import { FaShoppingCart, FaSearch, FaHeart, FaUser, FaChevronDown, FaBars, FaTimes } from 'react-icons/fa';
 import API from '../api/axios';
 import AuthModal from './AuthModal';
 import UserProfileModal from './UserProfileModal';
@@ -18,7 +18,6 @@ const Header = () => {
 
     const [search, setSearch] = useState('');
     const [navOpen, setNavOpen] = useState(false);
-    const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
     const [categories, setCategories] = useState([]);
     const [suggestions, setSuggestions] = useState({ products: [], categories: [] });
     const [showSuggestions, setShowSuggestions] = useState(false);
@@ -68,11 +67,6 @@ const Header = () => {
     const handleSearch = (e) => {
         e.preventDefault();
         navigate(`/?search=${search}`);
-    };
-
-    const handleLogout = () => {
-        logout();
-        navigate('/');
     };
 
     const openLoginModal = (tab = 'login') => {
@@ -154,8 +148,6 @@ const Header = () => {
                                                             textDecoration: 'none',
                                                             transition: 'all 0.2s'
                                                         }}
-                                                        onMouseEnter={(e) => { e.target.style.borderColor = 'var(--primary)'; e.target.style.background = 'rgba(224, 30, 90, 0.05)'; }}
-                                                        onMouseLeave={(e) => { e.target.style.borderColor = 'var(--border)'; e.target.style.background = 'rgba(255, 255, 255, 0.04)'; }}
                                                     >
                                                         {cat.name}
                                                     </Link>
@@ -198,8 +190,6 @@ const Header = () => {
                                                                 borderRadius: 'var(--radius-sm)',
                                                                 transition: 'all 0.2s'
                                                             }}
-                                                            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-glass-hover)'; }}
-                                                            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                                                         >
                                                             <img 
                                                                 src={prodImg} 
@@ -227,7 +217,7 @@ const Header = () => {
                                 <span className="action-text">Wishlist</span>
                             </Link>
                             
-                            {/* Cart Button — Strictly on the right side */}
+                            {/* Cart Button */}
                             <Link to="/cart" className="header-action-link cart-btn" title="Cart">
                                 <div className="cart-icon-wrapper">
                                     <FaShoppingCart className="action-icon" />
@@ -238,7 +228,6 @@ const Header = () => {
 
                             {!user ? (
                                 <div className="auth-buttons">
-                                    {/* Single Login Button that opens Auth Modal */}
                                     <button 
                                         type="button" 
                                         className="auth-link login-link header-single-login-btn"
@@ -249,7 +238,6 @@ const Header = () => {
                                 </div>
                             ) : (
                                 <div className="user-profile-menu">
-                                    {/* Logged in User Profile trigger button */}
                                     <div 
                                         className="profile-trigger"
                                         onClick={() => setUserProfileModalOpen(true)}
@@ -270,6 +258,7 @@ const Header = () => {
                 {/* Navigation Bar (Desktop horizontal & Mobile Drawer) */}
                 <div className={`nav-bar-wrapper ${navOpen ? 'mobile-nav-active' : ''}`}>
                     <nav className={`nav-bar ${navOpen ? 'nav-open' : ''}`}>
+                        {/* Only visible in mobile view */}
                         <div className="mobile-nav-header">
                             <span className="mobile-nav-title">Menu Navigation</span>
                             <button className="mobile-nav-close" onClick={() => setNavOpen(false)}>
@@ -305,7 +294,7 @@ const Header = () => {
                             </>
                         )}
 
-                        {/* Mobile view quick user buttons */}
+                        {/* Only visible in mobile view */}
                         <div className="mobile-nav-quick-actions">
                             {!user ? (
                                 <button className="mobile-login-btn" onClick={() => openLoginModal('login')}>

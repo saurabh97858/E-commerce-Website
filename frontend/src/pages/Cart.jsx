@@ -1,6 +1,6 @@
 import { useCart } from '../context/CartContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { FaShoppingCart, FaTrashAlt, FaMinus, FaPlus, FaArrowRight, FaShoppingBag } from 'react-icons/fa';
+import { FaShoppingCart, FaTrashAlt, FaMinus, FaPlus, FaArrowRight, FaShoppingBag, FaShieldAlt } from 'react-icons/fa';
 
 const Cart = () => {
     const { cart, updateCartItem, removeFromCart } = useCart();
@@ -30,7 +30,7 @@ const Cart = () => {
     }
 
     return (
-        <div className="pro-page">
+        <div className="pro-page cart-page-compact">
             <div className="pro-page-header">
                 <div className="pro-page-header-left">
                     <FaShoppingCart className="pro-page-icon" />
@@ -41,65 +41,73 @@ const Cart = () => {
                 </div>
             </div>
 
-            <div className="cart-layout">
-                <div className="cart-items-section">
-                    {cart.items.map((item) => (
-                        <div className="cart-item-card" key={item._id}>
-                            <div className="cart-item-image-wrapper">
-                                <img
-                                    src={
-                                        (() => {
-                                            const img = item.product?.images?.[0];
-                                            const placeholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'%3E%3Crect width='150' height='150' fill='%2316162a'/%3E%3Ctext x='50%25' y='55%25' font-family='Arial' font-size='24' fill='%23e94560' text-anchor='middle'%3E👟%3C/text%3E%3C/svg%3E";
-                                            if (!img || typeof img !== 'string' || img.trim() === '') return placeholder;
-                                            if (img.startsWith('http') || img.startsWith('data:')) return img;
-                                            let path = img;
-                                            if (!path.startsWith('/uploads/') && !path.startsWith('uploads/')) {
-                                                path = '/uploads/' + (path.startsWith('/') ? path.slice(1) : path);
-                                            } else if (path.startsWith('uploads/')) {
-                                                path = '/' + path;
-                                            }
-                                            const baseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/api$/, '');
-                                            return `${baseUrl}${path}`;
-                                        })()
-                                    }
-                                    alt={item.product?.name}
-                                    className="cart-item-image"
-                                />
-                            </div>
-                            <div className="cart-item-details">
-                                <h3 className="cart-item-name">{item.product?.name}</h3>
-                                {item.size && <span className="cart-item-size">Size: UK {item.size}</span>}
-                                <span className="cart-item-price">₹{item.product?.price}</span>
-                            </div>
-                            <div className="cart-item-qty">
-                                <button 
-                                    className="qty-btn" 
-                                    onClick={() => updateCartItem(item._id, Math.max(1, item.quantity - 1))}
-                                    disabled={item.quantity <= 1}
-                                >
-                                    <FaMinus />
+            {/* ONE Single Unified Container Card with 2 Columns */}
+            <div className="unified-cart-box">
+                {/* Left Column: Cart Items List */}
+                <div className="unified-cart-items-col">
+                    <h3 className="unified-section-heading">
+                        Cart Items ({cart.items.length})
+                    </h3>
+                    <div className="unified-items-list">
+                        {cart.items.map((item) => (
+                            <div className="cart-item-card" key={item._id}>
+                                <div className="cart-item-image-wrapper">
+                                    <img
+                                        src={
+                                            (() => {
+                                                const img = item.product?.images?.[0];
+                                                const placeholder = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'%3E%3Crect width='150' height='150' fill='%2316162a'/%3E%3Ctext x='50%25' y='55%25' font-family='Arial' font-size='24' fill='%23e94560' text-anchor='middle'%3E👟%3C/text%3E%3C/svg%3E";
+                                                if (!img || typeof img !== 'string' || img.trim() === '') return placeholder;
+                                                if (img.startsWith('http') || img.startsWith('data:')) return img;
+                                                let path = img;
+                                                if (!path.startsWith('/uploads/') && !path.startsWith('uploads/')) {
+                                                    path = '/uploads/' + (path.startsWith('/') ? path.slice(1) : path);
+                                                } else if (path.startsWith('uploads/')) {
+                                                    path = '/' + path;
+                                                }
+                                                const baseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/api$/, '');
+                                                return `${baseUrl}${path}`;
+                                            })()
+                                        }
+                                        alt={item.product?.name}
+                                        className="cart-item-image"
+                                    />
+                                </div>
+                                <div className="cart-item-details">
+                                    <h3 className="cart-item-name">{item.product?.name}</h3>
+                                    {item.size && <span className="cart-item-size">Size: UK {item.size}</span>}
+                                    <span className="cart-item-price">₹{item.product?.price}</span>
+                                </div>
+                                <div className="cart-item-qty">
+                                    <button 
+                                        className="qty-btn" 
+                                        onClick={() => updateCartItem(item._id, Math.max(1, item.quantity - 1))}
+                                        disabled={item.quantity <= 1}
+                                    >
+                                        <FaMinus />
+                                    </button>
+                                    <span className="qty-value">{item.quantity}</span>
+                                    <button 
+                                        className="qty-btn" 
+                                        onClick={() => updateCartItem(item._id, item.quantity + 1)}
+                                    >
+                                        <FaPlus />
+                                    </button>
+                                </div>
+                                <div className="cart-item-total">
+                                    ₹{(item.product?.price || 0) * item.quantity}
+                                </div>
+                                <button className="cart-item-remove" onClick={() => removeFromCart(item._id)} title="Remove item">
+                                    <FaTrashAlt />
                                 </button>
-                                <span className="qty-value">{item.quantity}</span>
-                                <button 
-                                    className="qty-btn" 
-                                    onClick={() => updateCartItem(item._id, item.quantity + 1)}
-                                >
-                                    <FaPlus />
-                                </button>
                             </div>
-                            <div className="cart-item-total">
-                                ₹{(item.product?.price || 0) * item.quantity}
-                            </div>
-                            <button className="cart-item-remove" onClick={() => removeFromCart(item._id)} title="Remove item">
-                                <FaTrashAlt />
-                            </button>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
 
-                <div className="cart-summary-card">
-                    <h3 className="cart-summary-title">Order Summary</h3>
+                {/* Right Column: Order Summary inside the same container */}
+                <div className="unified-cart-summary-col">
+                    <h3 className="unified-section-heading">Order Summary</h3>
                     <div className="cart-summary-row">
                         <span>Subtotal ({itemCount} items)</span>
                         <span>₹{total}</span>
@@ -120,6 +128,10 @@ const Cart = () => {
                         Proceed to Checkout <FaArrowRight />
                     </button>
                     <Link to="/" className="cart-continue-link">← Continue Shopping</Link>
+                    
+                    <div className="cart-trust-mini">
+                        <FaShieldAlt /> 100% Secure Checkout · 7-Day Easy Returns
+                    </div>
                 </div>
             </div>
         </div>
