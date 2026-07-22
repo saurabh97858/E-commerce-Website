@@ -10402,6 +10402,210 @@ select option {
   }
 }
 
+/* ──────────────────────────────────────────────────────────────────────────
+   MASTER GLOBAL MOBILE RESPONSIVENESS OVERRIDES (EVERY PAGE FIT FOR MOBILE)
+   ────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Prevent horizontal screen scrolling globally */
+  html, body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+  }
+
+  .app, .main-content {
+    width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Global Page Container Padding */
+  .pro-page,
+  .cart-page,
+  .checkout-page,
+  .auth-page-v2,
+  .contact-page,
+  .feedback-page,
+  .wishlist-page,
+  .order-success-page-compact {
+    padding: 12px 12px 24px !important;
+    width: 100% !important;
+  }
+
+  /* Section Headings */
+  .pro-page-title,
+  .checkout-page-title,
+  .cart-title {
+    font-size: 20px !important;
+  }
+
+  .pro-page-subtitle,
+  .checkout-page-sub {
+    font-size: 12px !important;
+  }
+
+  /* Hero Banner Scale */
+  .hero-banner {
+    padding: 24px 16px !important;
+    border-radius: var(--radius-md) !important;
+    margin-bottom: 20px !important;
+  }
+
+  .hero-title {
+    font-size: 22px !important;
+    line-height: 1.25 !important;
+  }
+
+  .hero-subtitle {
+    font-size: 13px !important;
+  }
+
+  /* Grid Views: Product Grid strictly 2 columns */
+  .product-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  .product-card {
+    width: 100% !important;
+    padding: 8px !important;
+  }
+
+  .product-card-image {
+    height: 140px !important;
+    width: 100% !important;
+    border-radius: var(--radius-sm) !important;
+  }
+
+  .product-card-name {
+    font-size: 12px !important;
+    height: 30px !important;
+    line-height: 1.25 !important;
+  }
+
+  .product-card-price {
+    font-size: 13px !important;
+  }
+
+  .product-card-btn {
+    padding: 7px 10px !important;
+    font-size: 11px !important;
+  }
+
+  /* Product Detail Page Stack */
+  .product-detail-container {
+    flex-direction: column !important;
+    padding: 14px !important;
+    gap: 16px !important;
+  }
+
+  .product-detail-gallery {
+    width: 100% !important;
+  }
+
+  .main-product-image {
+    height: 250px !important;
+  }
+
+  /* Cart Page Single Box 1-Column Stack */
+  .unified-cart-box {
+    grid-template-columns: 1fr !important;
+    padding: 14px !important;
+    gap: 16px !important;
+  }
+
+  .cart-item-row {
+    flex-direction: row !important;
+    gap: 10px !important;
+    padding: 10px !important;
+  }
+
+  .cart-item-thumb {
+    width: 60px !important;
+    height: 60px !important;
+  }
+
+  /* Checkout Layout Stack */
+  .checkout-page-compact .checkout-layout {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  .checkout-form-panel {
+    padding: 14px !important;
+  }
+
+  .form-row-2col,
+  .auth-grid-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .checkout-summary-box {
+    padding: 14px !important;
+  }
+
+  /* Auth Modal & Standalone Auth Page */
+  .auth-page-v2 {
+    flex-direction: column !important;
+    padding: 10px !important;
+    min-height: auto !important;
+  }
+
+  .auth-left-panel {
+    display: none !important; /* Hide left decor panel on mobile so form fits 100% */
+  }
+
+  .auth-right-panel {
+    width: 100% !important;
+    padding: 16px !important;
+  }
+
+  .auth-form-wrapper {
+    max-width: 100% !important;
+  }
+
+  /* Footer Mobile Layout */
+  .footer-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 16px !important;
+    padding: 24px 16px !important;
+  }
+
+  .footer-col-about {
+    grid-column: span 2 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-grid {
+    gap: 6px !important;
+  }
+
+  .product-card-image {
+    height: 125px !important;
+  }
+
+  .product-card-info {
+    padding: 6px !important;
+  }
+
+  .btn-place-order,
+  .auth-submit-btn {
+    padding: 12px !important;
+    font-size: 13.5px !important;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .footer-col-about {
+    grid-column: span 1 !important;
+  }
+}
+
+
 
 
 
