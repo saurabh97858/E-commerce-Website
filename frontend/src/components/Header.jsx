@@ -255,6 +255,13 @@ const Header = () => {
                     </div>
                 </div>
      
+                {/* Mobile Navigation Backdrop Overlay */}
+                <div 
+                    className={`nav-backdrop ${navOpen ? 'active' : ''}`} 
+                    onClick={() => setNavOpen(false)} 
+                    aria-hidden="true"
+                />
+
                 {/* Navigation Bar (Desktop horizontal & Mobile Drawer) */}
                 <div className={`nav-bar-wrapper ${navOpen ? 'mobile-nav-active' : ''}`}>
                     <nav className={`nav-bar ${navOpen ? 'nav-open' : ''}`}>
